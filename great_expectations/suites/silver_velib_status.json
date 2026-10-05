@@ -1,0 +1,18 @@
+{
+  "name": "silver_velib_status",
+  "description": "Contrôles du lot silver avant fusion dans staging.velib_status. 'critical' = bloque le chargement et alerte ; 'warning' = journalisé seulement.",
+  "expectations": [
+    {"type": "ExpectTableRowCountToBeBetween", "severity": "critical", "kwargs": {"min_value": 1}},
+    {"type": "ExpectColumnValuesToNotBeNull", "severity": "critical", "kwargs": {"column": "station_id"}},
+    {"type": "ExpectColumnValuesToNotBeNull", "severity": "critical", "kwargs": {"column": "last_reported"}},
+    {"type": "ExpectCompoundColumnsToBeUnique", "severity": "critical", "kwargs": {"column_list": ["station_id", "last_reported"]}},
+    {"type": "ExpectColumnValuesToBeBetween", "severity": "critical", "kwargs": {"column": "num_bikes_available", "min_value": 0, "max_value": 150}},
+    {"type": "ExpectColumnValuesToBeBetween", "severity": "critical", "kwargs": {"column": "num_docks_available", "min_value": 0, "max_value": 150}},
+    {"type": "ExpectColumnValuesToBeBetween", "severity": "critical", "kwargs": {"column": "num_mechanical", "min_value": 0}},
+    {"type": "ExpectColumnValuesToBeBetween", "severity": "critical", "kwargs": {"column": "num_ebike", "min_value": 0}},
+    {"type": "ExpectColumnValuesToBeBetween", "severity": "warning", "kwargs": {"column": "bikes_type_gap", "min_value": 0, "max_value": 0, "mostly": 0.99}},
+    {"type": "ExpectColumnValuesToNotBeNull", "severity": "warning", "kwargs": {"column": "station_code", "mostly": 0.99}},
+    {"type": "ExpectColumnMinToBeBetween", "severity": "warning", "kwargs": {"column": "minutes_since_report", "max_value": 180}},
+    {"type": "ExpectColumnValuesToBeBetween", "severity": "warning", "kwargs": {"column": "ingestion_delay_minutes", "max_value": 30, "mostly": 0.95}}
+  ]
+}

@@ -1,0 +1,47 @@
+version: 2
+
+exposures:
+  - name: dashboard_velib_temps_reel
+    label: "Dashboard Superset — Vélib' en temps réel"
+    type: dashboard
+    maturity: high
+    url: http://localhost:8088/superset/dashboard/velib/
+    description: "Carte des stations, top stations vides/pleines, évolution horaire, mécaniques vs électriques, comparaison par zone."
+    depends_on:
+      - ref('etat_actuel_stations')
+      - ref('agg_stations_critiques')
+      - ref('agg_disponibilite_zone_horaire')
+      - ref('agg_remplissage_horaire')
+      - ref('ml_predictions_vs_reel')
+    owner:
+      name: Vélib' Data Platform
+
+  - name: modele_prevision_disponibilite
+    label: "Modèle ML — vélos disponibles dans 1 h"
+    type: ml
+    maturity: medium
+    description: "LightGBM entraîné sur fct_station_horaire, suivi dans MLflow (ml/train.py)."
+    depends_on:
+      - ref('fct_station_horaire')
+      - ref('dim_station')
+      - ref('dim_date')
+    owner:
+      name: Vélib' Data Platform
+
+  - name: assistant_text_to_sql
+    label: "Assistant IA text-to-SQL"
+    type: application
+    maturity: medium
+    url: http://localhost:8501
+    description: "Questions en français traduites en SQL en lecture seule sur le schéma gold."
+    depends_on:
+      - ref('dim_station')
+      - ref('dim_date')
+      - ref('fact_disponibilite')
+      - ref('fct_station_horaire')
+      - ref('agg_remplissage_horaire')
+      - ref('agg_stations_critiques')
+      - ref('etat_actuel_stations')
+      - ref('agg_disponibilite_zone_horaire')
+    owner:
+      name: Vélib' Data Platform

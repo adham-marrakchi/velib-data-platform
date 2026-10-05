@@ -1,0 +1,46 @@
+name: velib
+version: "1.0.0"
+config-version: 2
+profile: velib
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+clean-targets: ["target", "dbt_packages", "logs"]
+
+vars:
+  timezone: "Europe/Paris"
+  # Durée maximale attribuée à un relevé quand la station ne renvoie plus rien (évite qu'une
+  # station en panne compte comme "vide" pendant des jours)
+  max_gap_minutes: 120
+  # Fenêtre de recalcul des modèles incrémentaux (données tardives)
+  incremental_lookback_hours: 3
+
+models:
+  velib:
+    staging:
+      +schema: dbt_staging
+      +materialized: view
+    intermediate:
+      +schema: dbt_staging
+      +materialized: view
+    marts:
+      +schema: gold
+      +materialized: table
+      +grants:
+        select:
+          - "{{ env_var('GOLD_READER_USER', 'gold_reader') }}"
+          - "{{ env_var('ASSISTANT_DB_USER', 'assistant_ro') }}"
+
+seeds:
+  velib:
+    +schema: gold
+    +grants:
+      select:
+        - "{{ env_var('GOLD_READER_USER', 'gold_reader') }}"
+        - "{{ env_var('ASSISTANT_DB_USER', 'assistant_ro') }}"
+    jours_feries:
+      +column_types:
+        date_ferie: date
+        nom_ferie: text

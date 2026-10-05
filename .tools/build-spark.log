@@ -1,0 +1,268 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.78kB 0.0s done
+#1 DONE 0.1s
+
+#2 [internal] load metadata for docker.io/apache/spark:3.5.9-java17-python3
+#2 DONE 1.9s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.1s
+
+#4 [internal] load build context
+#4 transferring context: 7.69kB 0.0s done
+#4 DONE 0.1s
+
+#5 [1/8] FROM docker.io/apache/spark:3.5.9-java17-python3@sha256:f3d6eaa8bab8ec2e38f3c3918a5b2f8b253c95bcb19f9e87ad0e0cdacf9df2d5
+#5 resolve docker.io/apache/spark:3.5.9-java17-python3@sha256:f3d6eaa8bab8ec2e38f3c3918a5b2f8b253c95bcb19f9e87ad0e0cdacf9df2d5 0.1s done
+#5 DONE 0.0s
+
+#5 [1/8] FROM docker.io/apache/spark:3.5.9-java17-python3@sha256:f3d6eaa8bab8ec2e38f3c3918a5b2f8b253c95bcb19f9e87ad0e0cdacf9df2d5
+#5 sha256:08005fa37db3f9dcae0d5d91620e2a66baccf2166e5c0b558c4f64f44da0f539 0B / 113.95MB 0.2s
+#5 sha256:6870d36ef28fdf0e282cb48bfaaf6efde7d2625f0758f8fe080eff43e3139fd7 0B / 2.14kB 0.2s
+#5 sha256:e5615df2c368c61e61e669d75b69c7578ea7276d54c177645a3015a182ade87c 0B / 325.39MB 0.2s
+#5 sha256:a3e82cf954558b63502bf074e5a774520f1e9b1c6dbee91b43580e1cb941ea5a 0B / 23.29MB 0.2s
+#5 sha256:6870d36ef28fdf0e282cb48bfaaf6efde7d2625f0758f8fe080eff43e3139fd7 2.14kB / 2.14kB 0.3s done
+#5 sha256:6569a8bc27fb9925f610b21580e8895d644b694f7426447513f3fc41cf1b887f 0B / 1.42kB 0.2s
+#5 sha256:08005fa37db3f9dcae0d5d91620e2a66baccf2166e5c0b558c4f64f44da0f539 6.29MB / 113.95MB 0.9s
+#5 sha256:6569a8bc27fb9925f610b21580e8895d644b694f7426447513f3fc41cf1b887f 1.42kB / 1.42kB 0.4s done
+#5 sha256:c7b65c760a06744e5f9c0029581a2b4d007bc335fe44a191ffc7094dd0935567 0B / 2.28kB 0.2s
+#5 sha256:c7b65c760a06744e5f9c0029581a2b4d007bc335fe44a191ffc7094dd0935567 2.28kB / 2.28kB 0.3s done
+#5 sha256:e98ef54ce62352e0ba5df8dcf4e8d7ad304595e33b485442220eccfeb2598b60 0B / 161B 0.2s
+#5 sha256:e98ef54ce62352e0ba5df8dcf4e8d7ad304595e33b485442220eccfeb2598b60 161B / 161B 0.2s done
+#5 sha256:94bebe0b6e8deb8676fbd24e226e855153250abd0942c48002017d6dc5fa60a9 0B / 145.91MB 0.2s
+#5 sha256:08005fa37db3f9dcae0d5d91620e2a66baccf2166e5c0b558c4f64f44da0f539 12.58MB / 113.95MB 2.0s
+#5 sha256:a3e82cf954558b63502bf074e5a774520f1e9b1c6dbee91b43580e1cb941ea5a 2.10MB / 23.29MB 2.1s
+#5 sha256:a3e82cf954558b63502bf074e5a774520f1e9b1c6dbee91b43580e1cb941ea5a 4.19MB / 23.29MB 3.5s
+#5 sha256:94bebe0b6e8deb8676fbd24e226e855153250abd0942c48002017d6dc5fa60a9 7.34MB / 145.91MB 2.1s
+#5 sha256:a3e82cf954558b63502bf074e5a774520f1e9b1c6dbee91b43580e1cb941ea5a 6.29MB / 23.29MB 4.5s
+#5 sha256:94bebe0b6e8deb8676fbd24e226e855153250abd0942c48002017d6dc5fa60a9 14.68MB / 145.91MB 3.3s
+#5 sha256:08005fa37db3f9dcae0d5d91620e2a66baccf2166e5c0b558c4f64f44da0f539 18.87MB / 113.95MB 5.1s
+#5 sha256:e5615df2c368c61e61e669d75b69c7578ea7276d54c177645a3015a182ade87c 16.78MB / 325.39MB 5.0s
+#5 sha256:a3e82cf954558b63502bf074e5a774520f1e9b1c6dbee91b43580e1cb941ea5a 8.39MB / 23.29MB 5.4s
+#5 sha256:a3e82cf954558b63502bf074e5a774520f1e9b1c6dbee91b43580e1cb941ea5a 10.49MB / 23.29MB 6.3s
+#5 sha256:94bebe0b6e8deb8676fbd24e226e855153250abd0942c48002017d6dc5fa60a9 22.02MB / 145.91MB 5.0s
+#5 sha256:a3e82cf954558b63502bf074e5a774520f1e9b1c6dbee91b43580e1cb941ea5a 12.58MB / 23.29MB 7.1s
+#5 sha256:a3e82cf954558b63502bf074e5a774520f1e9b1c6dbee91b43580e1cb941ea5a 14.68MB / 23.29MB 7.8s
+#5 sha256:94bebe0b6e8deb8676fbd24e226e855153250abd0942c48002017d6dc5fa60a9 29.36MB / 145.91MB 6.8s
+#5 sha256:a3e82cf954558b63502bf074e5a774520f1e9b1c6dbee91b43580e1cb941ea5a 16.78MB / 23.29MB 8.6s
+#5 sha256:e5615df2c368c61e61e669d75b69c7578ea7276d54c177645a3015a182ade87c 33.55MB / 325.39MB 8.9s
+#5 sha256:a3e82cf954558b63502bf074e5a774520f1e9b1c6dbee91b43580e1cb941ea5a 18.87MB / 23.29MB 9.2s
+#5 sha256:a3e82cf954558b63502bf074e5a774520f1e9b1c6dbee91b43580e1cb941ea5a 20.97MB / 23.29MB 9.6s
+#5 sha256:94bebe0b6e8deb8676fbd24e226e855153250abd0942c48002017d6dc5fa60a9 36.70MB / 145.91MB 8.6s
+#5 sha256:08005fa37db3f9dcae0d5d91620e2a66baccf2166e5c0b558c4f64f44da0f539 24.12MB / 113.95MB 10.2s
+#5 sha256:a3e82cf954558b63502bf074e5a774520f1e9b1c6dbee91b43580e1cb941ea5a 23.29MB / 23.29MB 10.2s done
+#5 sha256:f52ce071e38ba5c4d8c35a34c11cc1d3123a4c918b829aa8abbf2e077fea1336 0B / 20.66MB 0.2s
+#5 sha256:f52ce071e38ba5c4d8c35a34c11cc1d3123a4c918b829aa8abbf2e077fea1336 1.05MB / 20.66MB 0.6s
+#5 sha256:94bebe0b6e8deb8676fbd24e226e855153250abd0942c48002017d6dc5fa60a9 44.04MB / 145.91MB 9.9s
+#5 sha256:f52ce071e38ba5c4d8c35a34c11cc1d3123a4c918b829aa8abbf2e077fea1336 2.10MB / 20.66MB 1.1s
+#5 sha256:f52ce071e38ba5c4d8c35a34c11cc1d3123a4c918b829aa8abbf2e077fea1336 3.15MB / 20.66MB 1.4s
+#5 sha256:f52ce071e38ba5c4d8c35a34c11cc1d3123a4c918b829aa8abbf2e077fea1336 4.19MB / 20.66MB 1.7s
+#5 sha256:f52ce071e38ba5c4d8c35a34c11cc1d3123a4c918b829aa8abbf2e077fea1336 5.24MB / 20.66MB 2.0s
+#5 sha256:f52ce071e38ba5c4d8c35a34c11cc1d3123a4c918b829aa8abbf2e077fea1336 6.29MB / 20.66MB 2.3s
+#5 sha256:94bebe0b6e8deb8676fbd24e226e855153250abd0942c48002017d6dc5fa60a9 51.38MB / 145.91MB 11.6s
+#5 sha256:f52ce071e38ba5c4d8c35a34c11cc1d3123a4c918b829aa8abbf2e077fea1336 7.34MB / 20.66MB 2.7s
+#5 sha256:f52ce071e38ba5c4d8c35a34c11cc1d3123a4c918b829aa8abbf2e077fea1336 8.39MB / 20.66MB 3.0s
+#5 sha256:f52ce071e38ba5c4d8c35a34c11cc1d3123a4c918b829aa8abbf2e077fea1336 9.44MB / 20.66MB 3.3s
+#5 sha256:08005fa37db3f9dcae0d5d91620e2a66baccf2166e5c0b558c4f64f44da0f539 30.41MB / 113.95MB 13.7s
+#5 sha256:e5615df2c368c61e61e669d75b69c7578ea7276d54c177645a3015a182ade87c 50.33MB / 325.39MB 14.0s
+#5 sha256:f52ce071e38ba5c4d8c35a34c11cc1d3123a4c918b829aa8abbf2e077fea1336 10.49MB / 20.66MB 3.8s
+#5 sha256:f52ce071e38ba5c4d8c35a34c11cc1d3123a4c918b829aa8abbf2e077fea1336 11.53MB / 20.66MB 4.1s
+#5 sha256:94bebe0b6e8deb8676fbd24e226e855153250abd0942c48002017d6dc5fa60a9 58.72MB / 145.91MB 13.2s
+#5 sha256:f52ce071e38ba5c4d8c35a34c11cc1d3123a4c918b829aa8abbf2e077fea1336 12.58MB / 20.66MB 4.4s
+#5 sha256:f52ce071e38ba5c4d8c35a34c11cc1d3123a4c918b829aa8abbf2e077fea1336 13.63MB / 20.66MB 4.7s
+#5 sha256:f52ce071e38ba5c4d8c35a34c11cc1d3123a4c918b829aa8abbf2e077fea1336 14.68MB / 20.66MB 5.0s
+#5 sha256:f52ce071e38ba5c4d8c35a34c11cc1d3123a4c918b829aa8abbf2e077fea1336 15.73MB / 20.66MB 5.4s
+#5 sha256:f52ce071e38ba5c4d8c35a34c11cc1d3123a4c918b829aa8abbf2e077fea1336 16.78MB / 20.66MB 5.7s
+#5 sha256:94bebe0b6e8deb8676fbd24e226e855153250abd0942c48002017d6dc5fa60a9 66.06MB / 145.91MB 14.7s
+#5 sha256:f52ce071e38ba5c4d8c35a34c11cc1d3123a4c918b829aa8abbf2e077fea1336 17.83MB / 20.66MB 6.2s
+#5 sha256:f52ce071e38ba5c4d8c35a34c11cc1d3123a4c918b829aa8abbf2e077fea1336 18.87MB / 20.66MB 6.5s
+#5 sha256:08005fa37db3f9dcae0d5d91620e2a66baccf2166e5c0b558c4f64f44da0f539 36.70MB / 113.95MB 17.1s
+#5 sha256:f52ce071e38ba5c4d8c35a34c11cc1d3123a4c918b829aa8abbf2e077fea1336 19.92MB / 20.66MB 6.9s
+#5 sha256:f52ce071e38ba5c4d8c35a34c11cc1d3123a4c918b829aa8abbf2e077fea1336 20.66MB / 20.66MB 7.2s done
+#5 sha256:d6834b4a794c03efa2c998853e64969fa8851b11b2ade63292268872a37759d0 0B / 29.74MB 0.2s
+#5 sha256:94bebe0b6e8deb8676fbd24e226e855153250abd0942c48002017d6dc5fa60a9 73.40MB / 145.91MB 16.4s
+#5 sha256:d6834b4a794c03efa2c998853e64969fa8851b11b2ade63292268872a37759d0 2.10MB / 29.74MB 1.1s
+#5 sha256:e5615df2c368c61e61e669d75b69c7578ea7276d54c177645a3015a182ade87c 62.91MB / 325.39MB 19.1s
+#5 sha256:d6834b4a794c03efa2c998853e64969fa8851b11b2ade63292268872a37759d0 4.19MB / 29.74MB 2.0s
+#5 sha256:94bebe0b6e8deb8676fbd24e226e855153250abd0942c48002017d6dc5fa60a9 80.74MB / 145.91MB 18.2s
+#5 sha256:08005fa37db3f9dcae0d5d91620e2a66baccf2166e5c0b558c4f64f44da0f539 42.99MB / 113.95MB 20.3s
+#5 sha256:d6834b4a794c03efa2c998853e64969fa8851b11b2ade63292268872a37759d0 6.29MB / 29.74MB 3.0s
+#5 sha256:94bebe0b6e8deb8676fbd24e226e855153250abd0942c48002017d6dc5fa60a9 88.08MB / 145.91MB 19.7s
+#5 sha256:d6834b4a794c03efa2c998853e64969fa8851b11b2ade63292268872a37759d0 8.39MB / 29.74MB 3.8s
+#5 sha256:d6834b4a794c03efa2c998853e64969fa8851b11b2ade63292268872a37759d0 10.49MB / 29.74MB 5.0s
+#5 sha256:08005fa37db3f9dcae0d5d91620e2a66baccf2166e5c0b558c4f64f44da0f539 49.28MB / 113.95MB 23.0s
+#5 sha256:94bebe0b6e8deb8676fbd24e226e855153250abd0942c48002017d6dc5fa60a9 95.42MB / 145.91MB 21.9s
+#5 sha256:d6834b4a794c03efa2c998853e64969fa8851b11b2ade63292268872a37759d0 12.58MB / 29.74MB 5.9s
+#5 sha256:e5615df2c368c61e61e669d75b69c7578ea7276d54c177645a3015a182ade87c 79.69MB / 325.39MB 23.9s
+#5 sha256:d6834b4a794c03efa2c998853e64969fa8851b11b2ade63292268872a37759d0 14.68MB / 29.74MB 6.9s
+#5 sha256:d6834b4a794c03efa2c998853e64969fa8851b11b2ade63292268872a37759d0 16.78MB / 29.74MB 7.8s
+#5 sha256:94bebe0b6e8deb8676fbd24e226e855153250abd0942c48002017d6dc5fa60a9 102.76MB / 145.91MB 24.0s
+#5 sha256:08005fa37db3f9dcae0d5d91620e2a66baccf2166e5c0b558c4f64f44da0f539 55.57MB / 113.95MB 25.8s
+#5 sha256:d6834b4a794c03efa2c998853e64969fa8851b11b2ade63292268872a37759d0 18.87MB / 29.74MB 8.6s
+#5 sha256:d6834b4a794c03efa2c998853e64969fa8851b11b2ade63292268872a37759d0 20.97MB / 29.74MB 9.5s
+#5 sha256:e5615df2c368c61e61e669d75b69c7578ea7276d54c177645a3015a182ade87c 96.47MB / 325.39MB 27.3s
+#5 sha256:94bebe0b6e8deb8676fbd24e226e855153250abd0942c48002017d6dc5fa60a9 110.10MB / 145.91MB 26.1s
+#5 sha256:d6834b4a794c03efa2c998853e64969fa8851b11b2ade63292268872a37759d0 23.07MB / 29.74MB 10.4s
+#5 sha256:08005fa37db3f9dcae0d5d91620e2a66baccf2166e5c0b558c4f64f44da0f539 61.87MB / 113.95MB 28.2s
+#5 sha256:d6834b4a794c03efa2c998853e64969fa8851b11b2ade63292268872a37759d0 25.17MB / 29.74MB 11.4s
+#5 sha256:d6834b4a794c03efa2c998853e64969fa8851b11b2ade63292268872a37759d0 27.26MB / 29.74MB 12.2s
+#5 sha256:94bebe0b6e8deb8676fbd24e226e855153250abd0942c48002017d6dc5fa60a9 117.44MB / 145.91MB 27.5s
+#5 sha256:08005fa37db3f9dcae0d5d91620e2a66baccf2166e5c0b558c4f64f44da0f539 68.16MB / 113.95MB 29.6s
+#5 sha256:d6834b4a794c03efa2c998853e64969fa8851b11b2ade63292268872a37759d0 29.36MB / 29.74MB 12.2s
+#5 sha256:d6834b4a794c03efa2c998853e64969fa8851b11b2ade63292268872a37759d0 29.74MB / 29.74MB 12.4s done
+#5 extracting sha256:d6834b4a794c03efa2c998853e64969fa8851b11b2ade63292268872a37759d0
+#5 sha256:e5615df2c368c61e61e669d75b69c7578ea7276d54c177645a3015a182ade87c 113.25MB / 325.39MB 31.2s
+#5 sha256:94bebe0b6e8deb8676fbd24e226e855153250abd0942c48002017d6dc5fa60a9 124.78MB / 145.91MB 29.9s
+#5 sha256:08005fa37db3f9dcae0d5d91620e2a66baccf2166e5c0b558c4f64f44da0f539 74.45MB / 113.95MB 31.5s
+#5 sha256:94bebe0b6e8deb8676fbd24e226e855153250abd0942c48002017d6dc5fa60a9 132.12MB / 145.91MB 31.7s
+#5 sha256:08005fa37db3f9dcae0d5d91620e2a66baccf2166e5c0b558c4f64f44da0f539 80.74MB / 113.95MB 33.3s
+#5 sha256:08005fa37db3f9dcae0d5d91620e2a66baccf2166e5c0b558c4f64f44da0f539 87.03MB / 113.95MB 34.7s
+#5 sha256:94bebe0b6e8deb8676fbd24e226e855153250abd0942c48002017d6dc5fa60a9 139.46MB / 145.91MB 33.3s
+#5 sha256:e5615df2c368c61e61e669d75b69c7578ea7276d54c177645a3015a182ade87c 130.02MB / 325.39MB 35.3s
+#5 extracting sha256:d6834b4a794c03efa2c998853e64969fa8851b11b2ade63292268872a37759d0 5.4s done
+#5 extracting sha256:f52ce071e38ba5c4d8c35a34c11cc1d3123a4c918b829aa8abbf2e077fea1336
+#5 sha256:08005fa37db3f9dcae0d5d91620e2a66baccf2166e5c0b558c4f64f44da0f539 93.32MB / 113.95MB 36.3s
+#5 sha256:94bebe0b6e8deb8676fbd24e226e855153250abd0942c48002017d6dc5fa60a9 145.91MB / 145.91MB 35.1s done
+#5 sha256:08005fa37db3f9dcae0d5d91620e2a66baccf2166e5c0b558c4f64f44da0f539 99.61MB / 113.95MB 37.1s
+#5 sha256:08005fa37db3f9dcae0d5d91620e2a66baccf2166e5c0b558c4f64f44da0f539 105.91MB / 113.95MB 38.3s
+#5 sha256:e5615df2c368c61e61e669d75b69c7578ea7276d54c177645a3015a182ade87c 146.80MB / 325.39MB 38.3s
+#5 sha256:08005fa37db3f9dcae0d5d91620e2a66baccf2166e5c0b558c4f64f44da0f539 112.20MB / 113.95MB 39.3s
+#5 sha256:08005fa37db3f9dcae0d5d91620e2a66baccf2166e5c0b558c4f64f44da0f539 113.95MB / 113.95MB 39.8s done
+#5 extracting sha256:f52ce071e38ba5c4d8c35a34c11cc1d3123a4c918b829aa8abbf2e077fea1336 4.3s done
+#5 extracting sha256:94bebe0b6e8deb8676fbd24e226e855153250abd0942c48002017d6dc5fa60a9
+#5 sha256:e5615df2c368c61e61e669d75b69c7578ea7276d54c177645a3015a182ade87c 164.63MB / 325.39MB 40.7s
+#5 sha256:e5615df2c368c61e61e669d75b69c7578ea7276d54c177645a3015a182ade87c 182.45MB / 325.39MB 42.0s
+#5 sha256:e5615df2c368c61e61e669d75b69c7578ea7276d54c177645a3015a182ade87c 200.28MB / 325.39MB 43.2s
+#5 sha256:e5615df2c368c61e61e669d75b69c7578ea7276d54c177645a3015a182ade87c 217.06MB / 325.39MB 44.6s
+#5 sha256:e5615df2c368c61e61e669d75b69c7578ea7276d54c177645a3015a182ade87c 235.93MB / 325.39MB 46.1s
+#5 sha256:e5615df2c368c61e61e669d75b69c7578ea7276d54c177645a3015a182ade87c 252.71MB / 325.39MB 47.7s
+#5 sha256:e5615df2c368c61e61e669d75b69c7578ea7276d54c177645a3015a182ade87c 271.58MB / 325.39MB 49.1s
+#5 extracting sha256:94bebe0b6e8deb8676fbd24e226e855153250abd0942c48002017d6dc5fa60a9 9.8s done
+#5 extracting sha256:e98ef54ce62352e0ba5df8dcf4e8d7ad304595e33b485442220eccfeb2598b60
+#5 extracting sha256:e98ef54ce62352e0ba5df8dcf4e8d7ad304595e33b485442220eccfeb2598b60 0.2s done
+#5 extracting sha256:c7b65c760a06744e5f9c0029581a2b4d007bc335fe44a191ffc7094dd0935567
+#5 extracting sha256:c7b65c760a06744e5f9c0029581a2b4d007bc335fe44a191ffc7094dd0935567 0.2s done
+#5 extracting sha256:6569a8bc27fb9925f610b21580e8895d644b694f7426447513f3fc41cf1b887f
+#5 sha256:e5615df2c368c61e61e669d75b69c7578ea7276d54c177645a3015a182ade87c 288.36MB / 325.39MB 50.4s
+#5 extracting sha256:6569a8bc27fb9925f610b21580e8895d644b694f7426447513f3fc41cf1b887f 0.2s done
+#5 extracting sha256:a3e82cf954558b63502bf074e5a774520f1e9b1c6dbee91b43580e1cb941ea5a
+#5 sha256:e5615df2c368c61e61e669d75b69c7578ea7276d54c177645a3015a182ade87c 305.14MB / 325.39MB 52.4s
+#5 extracting sha256:a3e82cf954558b63502bf074e5a774520f1e9b1c6dbee91b43580e1cb941ea5a 2.9s done
+#5 sha256:e5615df2c368c61e61e669d75b69c7578ea7276d54c177645a3015a182ade87c 324.01MB / 325.39MB 53.9s
+#5 sha256:e5615df2c368c61e61e669d75b69c7578ea7276d54c177645a3015a182ade87c 325.39MB / 325.39MB 54.0s done
+#5 extracting sha256:e5615df2c368c61e61e669d75b69c7578ea7276d54c177645a3015a182ade87c
+#5 extracting sha256:e5615df2c368c61e61e669d75b69c7578ea7276d54c177645a3015a182ade87c 4.4s done
+#5 DONE 58.6s
+
+#5 [1/8] FROM docker.io/apache/spark:3.5.9-java17-python3@sha256:f3d6eaa8bab8ec2e38f3c3918a5b2f8b253c95bcb19f9e87ad0e0cdacf9df2d5
+#5 extracting sha256:6870d36ef28fdf0e282cb48bfaaf6efde7d2625f0758f8fe080eff43e3139fd7 0.1s done
+#5 extracting sha256:4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1 0.1s done
+#5 DONE 58.8s
+
+#5 [1/8] FROM docker.io/apache/spark:3.5.9-java17-python3@sha256:f3d6eaa8bab8ec2e38f3c3918a5b2f8b253c95bcb19f9e87ad0e0cdacf9df2d5
+#5 extracting sha256:08005fa37db3f9dcae0d5d91620e2a66baccf2166e5c0b558c4f64f44da0f539
+#5 extracting sha256:08005fa37db3f9dcae0d5d91620e2a66baccf2166e5c0b558c4f64f44da0f539 9.0s done
+#5 DONE 67.8s
+
+#6 [2/8] RUN apt-get update &&     apt-get install -y --no-install-recommends curl &&     apt-get clean && rm -rf /var/lib/apt/lists/*
+#6 0.562 Get:1 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+#6 0.562 Get:2 http://archive.ubuntu.com/ubuntu jammy InRelease [270 kB]
+#6 1.027 Get:3 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+#6 1.134 Get:4 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+#6 1.153 Get:5 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [4,417 kB]
+#6 1.394 Get:6 http://archive.ubuntu.com/ubuntu jammy/universe amd64 Packages [17.5 MB]
+#6 2.667 Get:7 http://security.ubuntu.com/ubuntu jammy-security/multiverse amd64 Packages [84.6 kB]
+#6 2.699 Get:8 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [7,907 kB]
+#6 4.150 Get:9 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1,321 kB]
+#6 4.454 Get:10 http://archive.ubuntu.com/ubuntu jammy/restricted amd64 Packages [164 kB]
+#6 4.484 Get:11 http://archive.ubuntu.com/ubuntu jammy/multiverse amd64 Packages [266 kB]
+#6 4.494 Get:12 http://archive.ubuntu.com/ubuntu jammy/main amd64 Packages [1,792 kB]
+#6 4.657 Get:13 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [4,757 kB]
+#6 5.050 Get:14 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [8,212 kB]
+#6 5.599 Get:15 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1,623 kB]
+#6 5.758 Get:16 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [93.2 kB]
+#6 5.762 Get:17 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 Packages [82.9 kB]
+#6 5.763 Get:18 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 Packages [35.6 kB]
+#6 8.717 Fetched 48.9 MB in 8s (5,844 kB/s)
+#6 8.717 Reading package lists...
+#6 10.69 Reading package lists...
+#6 12.52 Building dependency tree...
+#6 13.01 Reading state information...
+#6 13.64 The following additional packages will be installed:
+#6 13.64   libcurl4
+#6 13.73 The following packages will be upgraded:
+#6 13.73   curl libcurl4
+#6 13.94 2 upgraded, 0 newly installed, 0 to remove and 72 not upgraded.
+#6 13.94 Need to get 486 kB of archives.
+#6 13.94 After this operation, 2,048 B of additional disk space will be used.
+#6 13.94 Get:1 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 curl amd64 7.81.0-1ubuntu1.29 [194 kB]
+#6 14.34 Get:2 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 libcurl4 amd64 7.81.0-1ubuntu1.29 [292 kB]
+#6 14.72 debconf: delaying package configuration, since apt-utils is not installed
+#6 14.77 Fetched 486 kB in 1s (643 kB/s)
+#6 14.99 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 18951 files and directories currently installed.)
+#6 15.02 Preparing to unpack .../curl_7.81.0-1ubuntu1.29_amd64.deb ...
+#6 15.04 Unpacking curl (7.81.0-1ubuntu1.29) over (7.81.0-1ubuntu1.25) ...
+#6 15.10 Preparing to unpack .../libcurl4_7.81.0-1ubuntu1.29_amd64.deb ...
+#6 15.12 Unpacking libcurl4:amd64 (7.81.0-1ubuntu1.29) over (7.81.0-1ubuntu1.25) ...
+#6 15.19 Setting up libcurl4:amd64 (7.81.0-1ubuntu1.29) ...
+#6 15.20 Setting up curl (7.81.0-1ubuntu1.29) ...
+#6 15.23 Processing triggers for libc-bin (2.35-0ubuntu3.13) ...
+#6 DONE 15.5s
+
+#7 [3/8] RUN pip install --no-cache-dir prometheus-client==0.23.1 &&     pip install --no-cache-dir --no-deps delta-spark==3.3.2
+#7 0.929 Collecting prometheus-client==0.23.1
+#7 1.095   Downloading prometheus_client-0.23.1-py3-none-any.whl (61 kB)
+#7 1.134      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 61.1/61.1 KB 1.6 MB/s eta 0:00:00
+#7 1.157 Installing collected packages: prometheus-client
+#7 1.369 Successfully installed prometheus-client-0.23.1
+#7 1.370 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+#7 2.932 Collecting delta-spark==3.3.2
+#7 3.087   Downloading delta_spark-3.3.2-py3-none-any.whl (22 kB)
+#7 3.111 Installing collected packages: delta-spark
+#7 3.195 Successfully installed delta-spark-3.3.2
+#7 3.196 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+#7 DONE 3.4s
+
+#8 [4/8] RUN set -eux; cd /opt/spark/jars;     for jar in       org/apache/spark/spark-sql-kafka-0-10_2.12/3.5.9/spark-sql-kafka-0-10_2.12-3.5.9.jar       org/apache/spark/spark-token-provider-kafka-0-10_2.12/3.5.9/spark-token-provider-kafka-0-10_2.12-3.5.9.jar       org/apache/kafka/kafka-clients/3.4.1/kafka-clients-3.4.1.jar       org/apache/commons/commons-pool2/2.11.1/commons-pool2-2.11.1.jar       org/apache/hadoop/hadoop-aws/3.3.4/hadoop-aws-3.3.4.jar       com/amazonaws/aws-java-sdk-bundle/1.12.262/aws-java-sdk-bundle-1.12.262.jar       io/delta/delta-spark_2.12/3.3.2/delta-spark_2.12-3.3.2.jar       io/delta/delta-storage/3.3.2/delta-storage-3.3.2.jar       org/postgresql/postgresql/42.7.4/postgresql-42.7.4.jar;     do curl -fsSL -O "https://repo1.maven.org/maven2/${jar}"; done
+#8 0.482 + cd /opt/spark/jars
+#8 0.482 + curl -fsSL -O https://repo1.maven.org/maven2/org/apache/spark/spark-sql-kafka-0-10_2.12/3.5.9/spark-sql-kafka-0-10_2.12-3.5.9.jar
+#8 0.746 + curl -fsSL -O https://repo1.maven.org/maven2/org/apache/spark/spark-token-provider-kafka-0-10_2.12/3.5.9/spark-token-provider-kafka-0-10_2.12-3.5.9.jar
+#8 0.977 + curl -fsSL -O https://repo1.maven.org/maven2/org/apache/kafka/kafka-clients/3.4.1/kafka-clients-3.4.1.jar
+#8 0.847 + curl -fsSL -O https://repo1.maven.org/maven2/org/apache/commons/commons-pool2/2.11.1/commons-pool2-2.11.1.jar
+#8 1.076 + curl -fsSL -O https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.4/hadoop-aws-3.3.4.jar
+#8 1.352 + curl -fsSL -O https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.12.262/aws-java-sdk-bundle-1.12.262.jar
+#8 24.75 + curl -fsSL -O https://repo1.maven.org/maven2/io/delta/delta-spark_2.12/3.3.2/delta-spark_2.12-3.3.2.jar
+#8 25.60 + curl -fsSL -O https://repo1.maven.org/maven2/io/delta/delta-storage/3.3.2/delta-storage-3.3.2.jar
+#8 25.75 + curl -fsSL -O https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.4/postgresql-42.7.4.jar
+#8 DONE 26.5s
+
+#9 [5/8] COPY conf/metrics.properties /opt/spark/conf/metrics.properties
+#9 DONE 0.2s
+
+#10 [6/8] RUN mkdir -p /opt/spark_checkpoints /opt/spark_jobs && chown -R spark:spark /opt/spark_checkpoints /opt/spark_jobs
+#10 DONE 1.2s
+
+#11 [7/8] WORKDIR /opt/spark_jobs
+#11 DONE 1.2s
+
+#12 [8/8] COPY bronze_stream_job.py lake_config.py ./
+#12 DONE 0.2s
+
+#13 exporting to image
+#13 exporting layers
+#13 exporting layers 18.1s done
+#13 exporting manifest sha256:f53a50b7bebbee695d8e1757ebc971d9bd9c8796c5159758ad2763c4c16a7a3a 0.0s done
+#13 exporting config sha256:bdf882399380f86e9bb2cbf489f6a6491271d57c385454c000ebdb10a36ab2ac 0.0s done
+#13 exporting attestation manifest sha256:cd8c70c030d84a2e1cfd86d17137037852752d54bf2fe508237a64ffaf114b06 0.0s done
+#13 exporting manifest list sha256:627d4fc95db91243e8eb53214c142b5b0728c0a6360b84443ebd9828a5470c1d
+#13 exporting manifest list sha256:627d4fc95db91243e8eb53214c142b5b0728c0a6360b84443ebd9828a5470c1d 0.0s done
+#13 naming to docker.io/velib/spark:dev done
+#13 unpacking to docker.io/velib/spark:dev
+#13 unpacking to docker.io/velib/spark:dev 3.5s done
+#13 DONE 21.9s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/avs3cve6jn5ahpwwet1cfofym
+EXIT 0

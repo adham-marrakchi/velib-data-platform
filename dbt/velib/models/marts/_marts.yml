@@ -1,0 +1,342 @@
+version: 2
+
+models:
+  # ---------------------------------------------------------------- dimensions
+  - name: dim_station
+    description: "Dimension station Vélib' : une ligne par station (nom, localisation, capacité)."
+    columns:
+      - name: station_id
+        description: "Identifiant unique de la station (clé de jointure avec les tables de faits)."
+        tests: [unique, not_null]
+      - name: station_code
+        description: "Code public de la station affiché sur la borne (ex. '16107')."
+      - name: nom_station
+        description: "Nom de la station, généralement le carrefour (ex. 'Benjamin Godard - Victor Hugo')."
+        tests: [not_null]
+      - name: commune
+        description: "Commune de la station ('Paris' pour les 20 arrondissements, sinon nom de la commune, ex. 'Boulogne-Billancourt')."
+      - name: arrondissement
+        description: "Numéro d'arrondissement parisien (1 à 20), NULL hors Paris."
+        tests:
+          - accepted_range: { min_value: 1, max_value: 20 }
+      - name: zone
+        description: "Libellé de zone : 'Paris 16e' pour Paris, nom de la commune ailleurs. À utiliser pour comparer les territoires."
+        tests: [not_null]
+      - name: departement
+        description: "Code du département (75, 92, 93, 94...)."
+      - name: est_paris
+        description: "Vrai si la station est dans Paris intra-muros."
+      - name: latitude
+        description: "Latitude WGS84."
+      - name: longitude
+        description: "Longitude WGS84."
+      - name: capacite
+        description: "Nombre total de bornes (points d'attache) de la station."
+      - name: premiere_apparition
+        description: "Date de première apparition dans le référentiel."
+      - name: derniere_apparition
+        description: "Date de dernière apparition dans le référentiel."
+
+  - name: dim_date
+    description: "Dimension calendrier avec jours de la semaine en français, week-ends et jours fériés."
+    columns:
+      - name: date_id
+        description: "Clé date au format AAAAMMJJ (entier)."
+        tests: [unique, not_null]
+      - name: date_jour
+        description: "Date du jour."
+      - name: jour_semaine_num
+        description: "Numéro du jour ISO : 1 = lundi ... 7 = dimanche."
+        tests:
+          - accepted_range: { min_value: 1, max_value: 7 }
+      - name: jour_semaine
+        description: "Nom du jour en minuscules : 'lundi', 'mardi', ..., 'dimanche'."
+      - name: est_weekend
+        description: "Vrai le samedi et le dimanche."
+      - name: est_ferie
+        description: "Vrai si le jour est férié en France."
+      - name: nom_ferie
+        description: "Nom du jour férié (NULL sinon)."
+      - name: type_jour
+        description: "'semaine' ou 'week-end / férié'."
+      - name: mois
+        description: "Mois (1-12)."
+      - name: nom_mois
+        description: "Nom du mois en français."
+      - name: annee
+        description: "Année."
+      - name: semaine_iso
+        description: "Numéro de semaine ISO."
+
+  - name: dim_heure
+    description: "Dimension heure de la journée (0 à 23, heure locale de Paris)."
+    columns:
+      - name: heure
+        description: "Heure locale (0-23)."
+        tests:
+          - unique
+          - not_null
+          - accepted_range: { min_value: 0, max_value: 23 }
+      - name: tranche_horaire
+        description: "'nuit', 'matin', 'midi', 'après-midi' ou 'soir'."
+      - name: est_heure_pointe
+        description: "Vrai pour 7h-9h et 17h-19h."
+
+  # ---------------------------------------------------------------- faits
+  - name: fact_disponibilite
+    description: "Table de faits au grain le plus fin : un relevé de disponibilité par station et par horodatage."
+    tests:
+      - unique_combination_of_columns:
+          combination_of_columns: [station_id, releve_at]
+    columns:
+      - name: station_id
+        description: "Station (clé vers dim_station)."
+        tests:
+          - not_null
+          - relationships: { to: ref('dim_station'), field: station_id }
+      - name: releve_at
+        description: "Horodatage du relevé (timestamptz)."
+        tests: [not_null]
+      - name: date_id
+        description: "Date locale du relevé (clé vers dim_date)."
+        tests:
+          - not_null
+          - relationships: { to: ref('dim_date'), field: date_id }
+      - name: heure
+        description: "Heure locale du relevé (clé vers dim_heure)."
+        tests:
+          - relationships: { to: ref('dim_heure'), field: heure }
+      - name: velos_disponibles
+        description: "Nombre total de vélos disponibles (mécaniques + électriques)."
+        tests:
+          - accepted_range: { min_value: 0 }
+      - name: velos_mecaniques
+        description: "Vélos mécaniques disponibles."
+      - name: velos_electriques
+        description: "Vélos électriques disponibles."
+      - name: bornes_libres
+        description: "Bornes libres pour déposer un vélo."
+        tests:
+          - accepted_range: { min_value: 0 }
+      - name: capacite_effective
+        description: "velos_disponibles + bornes_libres (bornes en service au moment du relevé)."
+      - name: taux_remplissage
+        description: "velos_disponibles / capacite_effective, entre 0 (vide) et 1 (pleine)."
+        tests:
+          - accepted_range: { min_value: 0, max_value: 1 }
+      - name: est_vide
+        description: "Vrai si aucun vélo n'est disponible."
+      - name: est_pleine
+        description: "Vrai si aucune borne n'est libre."
+
+  - name: fct_station_horaire
+    description: "Série temporelle horaire complète : état de chaque station à la fin de chaque heure (dernier relevé connu)."
+    tests:
+      - unique_combination_of_columns:
+          combination_of_columns: [station_id, heure_debut]
+    columns:
+      - name: station_id
+        description: "Station (clé vers dim_station)."
+        tests:
+          - not_null
+          - relationships: { to: ref('dim_station'), field: station_id }
+      - name: heure_debut
+        description: "Début de l'heure (timestamptz)."
+        tests: [not_null]
+      - name: heure_fin
+        description: "Fin de l'heure : l'état décrit est celui connu à cet instant."
+      - name: date_id
+        description: "Date locale (clé vers dim_date)."
+        tests:
+          - relationships: { to: ref('dim_date'), field: date_id }
+      - name: heure_locale
+        description: "Heure locale de Paris (0-23)."
+      - name: velos_disponibles
+        description: "Vélos disponibles à la fin de l'heure."
+      - name: velos_mecaniques
+        description: "Vélos mécaniques disponibles à la fin de l'heure."
+      - name: velos_electriques
+        description: "Vélos électriques disponibles à la fin de l'heure."
+      - name: bornes_libres
+        description: "Bornes libres à la fin de l'heure."
+      - name: taux_remplissage
+        description: "Taux de remplissage entre 0 et 1."
+        tests:
+          - accepted_range: { min_value: 0, max_value: 1 }
+      - name: minutes_depuis_releve
+        description: "Ancienneté du dernier relevé à la fin de l'heure (minutes)."
+
+  # ---------------------------------------------------------------- agrégats
+  - name: agg_remplissage_horaire
+    description: "Profil horaire moyen de chaque station, séparé semaine / week-end-férié. Idéal pour 'à quelle heure la station X est-elle vide ?'."
+    tests:
+      - unique_combination_of_columns:
+          combination_of_columns: [station_id, type_jour, heure]
+    columns:
+      - name: station_id
+        description: "Station."
+      - name: nom_station
+        description: "Nom de la station."
+      - name: zone
+        description: "Arrondissement ('Paris 11e') ou commune."
+      - name: type_jour
+        description: "'semaine' ou 'week-end / férié'."
+      - name: heure
+        description: "Heure locale (0-23)."
+      - name: taux_remplissage_moyen
+        description: "Taux de remplissage moyen (0-1)."
+        tests:
+          - accepted_range: { min_value: 0, max_value: 1 }
+      - name: velos_disponibles_moyen
+        description: "Nombre moyen de vélos disponibles."
+      - name: velos_mecaniques_moyen
+        description: "Nombre moyen de vélos mécaniques."
+      - name: velos_electriques_moyen
+        description: "Nombre moyen de vélos électriques."
+      - name: nb_heures_observees
+        description: "Nombre d'heures observées (fiabilité de la moyenne)."
+
+  - name: agg_stations_critiques
+    description: "Stations les plus souvent vides ou pleines : temps passé dans chaque état et classement."
+    columns:
+      - name: station_id
+        description: "Station."
+        tests: [unique, not_null]
+      - name: nom_station
+        description: "Nom de la station."
+      - name: zone
+        description: "Arrondissement ou commune."
+      - name: commune
+        description: "Commune."
+      - name: capacite
+        description: "Nombre de bornes."
+      - name: heures_observees
+        description: "Heures d'observation cumulées."
+      - name: heures_vide
+        description: "Heures passées sans aucun vélo."
+      - name: heures_pleine
+        description: "Heures passées sans aucune borne libre."
+      - name: part_temps_vide
+        description: "Part du temps passé vide (0-1) sur toute la période."
+        tests:
+          - accepted_range: { min_value: 0, max_value: 1 }
+      - name: part_temps_pleine
+        description: "Part du temps passé pleine (0-1) sur toute la période."
+        tests:
+          - accepted_range: { min_value: 0, max_value: 1 }
+      - name: part_temps_vide_7j
+        description: "Part du temps passé vide sur les 7 derniers jours."
+      - name: part_temps_pleine_7j
+        description: "Part du temps passé pleine sur les 7 derniers jours."
+      - name: rang_vide
+        description: "Rang (1 = station le plus souvent vide)."
+      - name: rang_pleine
+        description: "Rang (1 = station le plus souvent pleine)."
+
+  - name: etat_actuel_stations
+    description: "Dernier état connu de chaque station (temps réel), avec coordonnées pour la carte."
+    columns:
+      - name: station_id
+        description: "Station."
+        tests: [unique, not_null]
+      - name: nom_station
+        description: "Nom de la station."
+      - name: zone
+        description: "Arrondissement ou commune."
+      - name: commune
+        description: "Commune."
+      - name: arrondissement
+        description: "Arrondissement parisien (NULL hors Paris)."
+      - name: latitude
+        description: "Latitude."
+      - name: longitude
+        description: "Longitude."
+      - name: capacite
+        description: "Nombre de bornes."
+      - name: dernier_releve_at
+        description: "Horodatage du dernier relevé."
+      - name: minutes_depuis_releve
+        description: "Ancienneté du dernier relevé en minutes."
+      - name: velos_disponibles
+        description: "Vélos disponibles maintenant."
+      - name: velos_mecaniques
+        description: "Vélos mécaniques disponibles maintenant."
+      - name: velos_electriques
+        description: "Vélos électriques disponibles maintenant."
+      - name: bornes_libres
+        description: "Bornes libres maintenant."
+      - name: taux_remplissage
+        description: "Taux de remplissage actuel (0-1)."
+        tests:
+          - accepted_range: { min_value: 0, max_value: 1 }
+      - name: statut
+        description: "'vide', 'presque vide', 'disponible', 'presque pleine', 'pleine' ou 'hors service'."
+        tests:
+          - accepted_values:
+              values: ['vide', 'presque vide', 'disponible', 'presque pleine', 'pleine', 'hors service']
+
+  - name: agg_disponibilite_zone_horaire
+    description: "Disponibilité agrégée par zone (arrondissement ou commune) et par heure."
+    tests:
+      - unique_combination_of_columns:
+          combination_of_columns: [heure_debut, zone]
+    columns:
+      - name: heure_debut
+        description: "Début de l'heure (timestamptz)."
+      - name: date_id
+        description: "Date locale (AAAAMMJJ), jointure possible avec dim_date."
+      - name: heure
+        description: "Heure locale (0-23)."
+      - name: zone
+        description: "Arrondissement ('Paris 15e') ou commune."
+      - name: commune
+        description: "Commune."
+      - name: est_paris
+        description: "Vrai pour Paris intra-muros."
+      - name: nb_stations
+        description: "Nombre de stations de la zone."
+      - name: velos_disponibles
+        description: "Total des vélos disponibles dans la zone."
+      - name: velos_mecaniques
+        description: "Total des vélos mécaniques."
+      - name: velos_electriques
+        description: "Total des vélos électriques."
+      - name: bornes_libres
+        description: "Total des bornes libres."
+      - name: taux_remplissage_moyen
+        description: "Taux de remplissage moyen des stations de la zone (0-1)."
+      - name: nb_stations_vides
+        description: "Nombre de stations vides à la fin de l'heure."
+      - name: nb_stations_pleines
+        description: "Nombre de stations pleines à la fin de l'heure."
+
+  - name: ml_predictions_vs_reel
+    description: "Prévisions du modèle (vélos dans 1 h) comparées aux valeurs réellement observées."
+    columns:
+      - name: station_id
+        description: "Station."
+      - name: nom_station
+        description: "Nom de la station."
+      - name: zone
+        description: "Arrondissement ou commune."
+      - name: heure_cible
+        description: "Heure prédite."
+      - name: heure_donnees
+        description: "Heure des dernières données utilisées pour prédire."
+      - name: version_modele
+        description: "Version du modèle dans le registre MLflow."
+      - name: velos_predits
+        description: "Nombre de vélos prédit."
+      - name: velos_reels
+        description: "Nombre de vélos observé (NULL tant que l'heure cible n'est pas passée)."
+      - name: erreur_absolue
+        description: "|prédit - réel|."
+      - name: est_evaluee
+        description: "Vrai si la valeur réelle est connue."
+
+seeds:
+  - name: jours_feries
+    description: "Jours fériés en France (généré avec la bibliothèque Python holidays)."
+    columns:
+      - name: date_ferie
+        tests: [unique, not_null]

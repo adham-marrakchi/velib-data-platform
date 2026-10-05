@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: stg_velib_status
+    description: "Relevés de disponibilité renommés en français, avec l'heure locale de Paris."
+    columns:
+      - name: station_id
+        tests: [not_null]
+      - name: releve_at
+        tests: [not_null]
+      - name: velos_disponibles
+        tests:
+          - accepted_range: { min_value: 0 }
+
+  - name: stg_velib_stations
+    description: "Référentiel stations enrichi (commune, arrondissement, zone, département)."
+    columns:
+      - name: station_id
+        tests: [unique, not_null]
+      - name: zone
+        tests: [not_null]

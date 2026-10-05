@@ -1,9 +1,14 @@
-FROM python:3.10-slim
+FROM python:3.11-slim
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir kafka-python==2.0.2
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY producer.py .
 
-CMD ["python", "producer.py"]
+RUN useradd --create-home --uid 1001 producer
+USER producer
+
+EXPOSE 8000
+CMD ["python", "-u", "producer.py"]

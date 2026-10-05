@@ -1,0 +1,15 @@
+# venv "pipeline" : Spark silver, qualité, ML
+pyspark==3.5.9
+delta-spark==3.3.2
+great-expectations==1.23.2
+pandas==2.2.3
+numpy==1.26.4
+sqlalchemy==2.0.43
+psycopg2-binary==2.9.10
+lightgbm==4.6.0
+optuna==4.5.0
+mlflow==3.5.1
+scikit-learn==1.7.2
+holidays==0.80
+boto3==1.40.45
+requests==2.32.5

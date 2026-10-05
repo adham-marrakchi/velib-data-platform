@@ -1,0 +1,32 @@
+version: 2
+
+sources:
+  - name: staging
+    description: "Données silver chargées depuis le lake Delta par le DAG velib_silver_quality_dag."
+    schema: staging
+    tables:
+      - name: velib_status
+        description: "Un relevé par station et par horodatage last_reported (dédoublonné et validé en silver)."
+        loaded_at_field: loaded_at
+        freshness:
+          warn_after: { count: 30, period: minute }
+          error_after: { count: 2, period: hour }
+        columns:
+          - name: station_id
+            description: "Identifiant technique GBFS de la station."
+            tests: [not_null]
+          - name: last_reported
+            description: "Horodatage (UTC) du relevé envoyé par la station."
+            tests: [not_null]
+      - name: velib_stations
+        description: "Référentiel des stations (station_information.json + commune géocodée par l'API Géo)."
+        columns:
+          - name: station_id
+            tests: [unique, not_null]
+
+  - name: ml
+    description: "Sorties du modèle de prévision (écrites par ml/predict.py)."
+    schema: ml
+    tables:
+      - name: predictions_disponibilite
+        description: "Prévision du nombre de vélos disponibles 1 h plus tard, par station."
