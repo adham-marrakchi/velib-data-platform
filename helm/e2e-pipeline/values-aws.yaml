@@ -1,0 +1,31 @@
+# =============================================================
+# AWS EKS Override Values
+# =============================================================
+# Usage: helm install e2e-pipeline ./helm/e2e-pipeline -f helm/e2e-pipeline/values-aws.yaml
+
+global:
+  imageRegistry: "" # Set to your ECR: 123456789.dkr.ecr.us-east-1.amazonaws.com
+  storageClass: gp3
+
+dotnetApi:
+  ingress:
+    enabled: true
+    className: alb
+    host: api.your-domain.com
+    annotations:
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/healthcheck-path: /health/live
+
+postgresql:
+  primary:
+    persistence:
+      storageClass: gp3
+
+kafka:
+  persistence:
+    storageClass: gp3
+
+minio:
+  persistence:
+    storageClass: gp3

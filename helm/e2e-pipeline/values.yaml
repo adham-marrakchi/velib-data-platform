@@ -1,0 +1,186 @@
+# =============================================================
+# E2E Data Pipeline - Helm Values
+# =============================================================
+# Works with ANY Kubernetes provider (EKS, GKE, AKS, on-prem, k3s)
+
+global:
+  # Container registry (change for your provider)
+  # AWS ECR:  123456789.dkr.ecr.us-east-1.amazonaws.com
+  # GCR:     gcr.io/your-project
+  # ACR:     yourregistry.azurecr.io
+  # Docker Hub: docker.io/yourusername
+  # On-prem: your-registry.internal:5000
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: "" # Leave empty for default, or set: gp3 (AWS), pd-ssd (GCP), managed-premium (Azure)
+
+namespace: pipeline
+
+# =============================================================
+# Pipeline Custom Services
+# =============================================================
+airflow:
+  enabled: true
+  image:
+    repository: pipeline-airflow
+    tag: "v1.0.0"
+  webserver:
+    replicas: 1
+    resources:
+      requests: { cpu: 500m, memory: 1Gi }
+      limits: { cpu: "1", memory: 2Gi }
+  scheduler:
+    replicas: 1
+    resources:
+      requests: { cpu: 500m, memory: 1Gi }
+      limits: { cpu: "1", memory: 2Gi }
+  config:
+    executor: LocalExecutor
+    loadExamples: "False"
+  auth:
+    username: admin
+    password: "" # Set via --set or secrets
+
+spark:
+  enabled: true
+  image:
+    repository: pipeline-spark
+    tag: "v1.0.0"
+  master:
+    replicas: 1
+    resources:
+      requests: { cpu: 500m, memory: 1Gi }
+      limits: { cpu: "1", memory: 2Gi }
+  worker:
+    replicas: 1
+    resources:
+      requests: { cpu: "1", memory: 2Gi }
+      limits: { cpu: "2", memory: 4Gi }
+
+kafkaProducer:
+  enabled: true
+  image:
+    repository: pipeline-kafka-producer
+    tag: "v1.0.0"
+  config:
+    topic: sensor_readings
+    frequency: "2"
+    batchSize: "10"
+  resources:
+    requests: { cpu: 100m, memory: 64Mi }
+    limits: { cpu: 250m, memory: 128Mi }
+
+dotnetApi:
+  enabled: true
+  image:
+    repository: pipeline-dotnet-api
+    tag: "v1.0.0"
+  replicas: 2
+  resources:
+    requests: { cpu: 250m, memory: 256Mi }
+    limits: { cpu: 500m, memory: 512Mi }
+  service:
+    type: ClusterIP
+    port: 80
+  ingress:
+    enabled: false
+    className: "" # nginx, alb, traefik, etc.
+    host: api.pipeline.local
+    tls: false
+
+# =============================================================
+# Snowflake Data Warehouse (external service)
+# =============================================================
+snowflake:
+  enabled: false
+  account: ""
+  user: ""
+  password: ""
+  warehouse: PIPELINE_WH
+  database: PIPELINE_DB
+  schema: ANALYTICS
+  role: PIPELINE_ROLE
+
+# =============================================================
+# Infrastructure Dependencies (Bitnami sub-charts)
+# =============================================================
+postgresql:
+  enabled: true
+  auth:
+    database: processed_db
+    username: pipeline_user
+    password: "" # Set via --set or secrets
+  primary:
+    persistence:
+      size: 20Gi
+    initdb:
+      scripts:
+        init_warehouse.sql: |
+          -- Will be populated from scripts/init_warehouse.sql
+
+mysql:
+  enabled: true
+  auth:
+    database: source_db
+    username: pipeline_user
+    password: "" # Set via --set or secrets
+    rootPassword: ""
+  primary:
+    persistence:
+      size: 10Gi
+  initdbScripts:
+    init_db.sql: |
+      -- Will be populated from scripts/init_db.sql
+
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
+
+mongodb:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
+  persistence:
+    size: 10Gi
+
+kafka:
+  enabled: true
+  listeners:
+    client:
+      protocol: PLAINTEXT
+  controller:
+    replicaCount: 1
+  persistence:
+    size: 20Gi
+
+minio:
+  enabled: true
+  auth:
+    rootUser: minio
+    rootPassword: "" # Set via --set or secrets
+  defaultBuckets: "raw-data,processed-data"
+  persistence:
+    size: 20Gi
+
+grafana:
+  enabled: true
+  adminUser: admin
+  adminPassword: "" # Set via --set or secrets
+
+prometheus:
+  enabled: true
+  server:
+    retention: 15d
+    persistentVolume:
+      size: 20Gi
+
+elasticsearch:
+  enabled: true
+  replicas: 1
+  minimumMasterNodes: 1
+  resources:
+    requests: { cpu: 500m, memory: 1Gi }
+    limits: { cpu: "1", memory: 2Gi }

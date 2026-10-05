@@ -1,0 +1,45 @@
+# =============================================================
+# On-Premises / Bare Metal Override Values
+# =============================================================
+# Usage: helm install e2e-pipeline ./helm/e2e-pipeline -f helm/e2e-pipeline/values-onprem.yaml
+# Works with: k3s, kubeadm, Rancher, OpenShift, MicroK8s
+
+global:
+  imageRegistry: "" # Set to your internal registry: registry.internal:5000
+  storageClass: local-path # k3s default; change to your provisioner
+
+dotnetApi:
+  ingress:
+    enabled: true
+    className: nginx # or traefik for k3s
+    host: api.pipeline.local
+
+# Use smaller resources for on-prem
+airflow:
+  webserver:
+    resources:
+      requests: { cpu: 250m, memory: 512Mi }
+      limits: { cpu: 500m, memory: 1Gi }
+  scheduler:
+    resources:
+      requests: { cpu: 250m, memory: 512Mi }
+      limits: { cpu: 500m, memory: 1Gi }
+
+spark:
+  master:
+    resources:
+      requests: { cpu: 250m, memory: 512Mi }
+      limits: { cpu: 500m, memory: 1Gi }
+  worker:
+    resources:
+      requests: { cpu: 500m, memory: 1Gi }
+      limits: { cpu: "1", memory: 2Gi }
+
+# Disable optional components for smaller footprint
+elasticsearch:
+  enabled: false
+
+prometheus:
+  server:
+    persistentVolume:
+      size: 10Gi

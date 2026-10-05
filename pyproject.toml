@@ -1,0 +1,20 @@
+[tool.black]
+line-length = 120
+target-version = ["py310"]
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+line_length = 120
+known_first_party = ["snowflake"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.flake8]
+max-line-length = 120
+ignore = ["E501", "W503", "E203"]
+exclude = [".venv", ".git", "__pycache__"]

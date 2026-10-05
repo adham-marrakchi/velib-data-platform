@@ -1,0 +1,29 @@
+# =============================================================
+# Azure AKS Override Values
+# =============================================================
+# Usage: helm install e2e-pipeline ./helm/e2e-pipeline -f helm/e2e-pipeline/values-azure.yaml
+
+global:
+  imageRegistry: "" # Set to your ACR: yourregistry.azurecr.io
+  storageClass: managed-premium
+
+dotnetApi:
+  ingress:
+    enabled: true
+    className: nginx
+    host: api.your-domain.com
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+
+postgresql:
+  primary:
+    persistence:
+      storageClass: managed-premium
+
+kafka:
+  persistence:
+    storageClass: managed-premium
+
+minio:
+  persistence:
+    storageClass: managed-premium

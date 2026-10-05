@@ -1,0 +1,46 @@
+# =============================================================
+# Terraform Variables - Copy to terraform.tfvars and customize
+# =============================================================
+
+# General
+aws_region   = "us-east-1"
+environment  = "dev" # dev | staging | prod
+project_name = "e2e-pipeline"
+
+# Networking
+vpc_cidr             = "10.0.0.0/16"
+private_subnet_cidrs = ["10.0.1.0/24", "10.0.2.0/24"]
+public_subnet_cidrs  = ["10.0.101.0/24", "10.0.102.0/24"]
+allowed_ssh_cidrs    = ["YOUR_IP/32"] # REPLACE with your IP for SSH access
+
+# Compute (set deploy_ec2 = true for VM-based deployment)
+deploy_ec2    = false
+instance_type = "t3.large"
+key_pair_name = "" # Name of your EC2 key pair (create in AWS console first)
+ami_id        = "" # Leave empty to auto-detect latest Amazon Linux 2023
+
+# EKS (set deploy_to_eks = true for Kubernetes deployment)
+deploy_to_eks          = true
+eks_cluster_name       = "e2e-pipeline"
+eks_node_instance_type = "t3.large"
+eks_node_desired       = 2
+eks_node_min           = 1
+eks_node_max           = 4
+
+# Database (RDS PostgreSQL)
+db_instance_class    = "db.t3.medium"
+db_username          = "pipeline_admin"
+db_password          = "CHANGE_ME_TO_SECURE_PASSWORD" # Use a strong password
+db_allocated_storage = 50
+db_multi_az          = false # Set true for production
+
+# Deployment Strategies
+enable_blue_green     = true
+enable_canary         = true
+canary_initial_weight = 10
+
+# Monitoring
+enable_monitoring = true
+
+# Notifications (optional)
+slack_webhook_url = "" # https://hooks.slack.com/services/...

@@ -1,0 +1,254 @@
+# =============================================================
+# Kubernetes Deployments for E2E Data Pipeline
+# =============================================================
+# Each service gets its own Deployment for independent scaling.
+# Replace ${REGISTRY} with your container registry (e.g., 123456.dkr.ecr.us-east-1.amazonaws.com)
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pipeline
+  labels:
+    app.kubernetes.io/part-of: e2e-pipeline
+
+---
+# =============================================================
+# Airflow Webserver
+# =============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow-webserver
+  namespace: pipeline
+  labels:
+    app: airflow-webserver
+    tier: orchestration
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airflow-webserver
+  template:
+    metadata:
+      labels:
+        app: airflow-webserver
+        tier: orchestration
+    spec:
+      containers:
+        - name: airflow-webserver
+          image: ${REGISTRY}/pipeline-airflow:v1.0.0
+          command: ["airflow", "webserver"]
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: pipeline-config
+            - secretRef:
+                name: pipeline-secrets
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: "1"
+              memory: 2Gi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+
+---
+# =============================================================
+# Airflow Scheduler
+# =============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow-scheduler
+  namespace: pipeline
+  labels:
+    app: airflow-scheduler
+    tier: orchestration
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airflow-scheduler
+  template:
+    metadata:
+      labels:
+        app: airflow-scheduler
+        tier: orchestration
+    spec:
+      containers:
+        - name: airflow-scheduler
+          image: ${REGISTRY}/pipeline-airflow:v1.0.0
+          command: ["airflow", "scheduler"]
+          envFrom:
+            - configMapRef:
+                name: pipeline-config
+            - secretRef:
+                name: pipeline-secrets
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: "1"
+              memory: 2Gi
+          livenessProbe:
+            exec:
+              command: ["airflow", "jobs", "check", "--job-type", "SchedulerJob"]
+            initialDelaySeconds: 60
+            periodSeconds: 30
+
+---
+# =============================================================
+# Spark Master
+# =============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-master
+  namespace: pipeline
+  labels:
+    app: spark-master
+    tier: processing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark-master
+  template:
+    metadata:
+      labels:
+        app: spark-master
+        tier: processing
+    spec:
+      containers:
+        - name: spark-master
+          image: ${REGISTRY}/pipeline-spark:v1.0.0
+          command: ["/opt/spark/sbin/start-master.sh"]
+          ports:
+            - containerPort: 7077
+              name: spark
+            - containerPort: 8080
+              name: web-ui
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: "1"
+              memory: 2Gi
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 30
+
+---
+# =============================================================
+# .NET API
+# =============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dotnet-api
+  namespace: pipeline
+  labels:
+    app: dotnet-api
+    tier: api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: dotnet-api
+  template:
+    metadata:
+      labels:
+        app: dotnet-api
+        tier: api
+    spec:
+      containers:
+        - name: dotnet-api
+          image: ${REGISTRY}/pipeline-dotnet-api:v1.0.0
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: pipeline-config
+            - secretRef:
+                name: pipeline-secrets
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 80
+            initialDelaySeconds: 20
+            periodSeconds: 10
+
+---
+# =============================================================
+# ConfigMap (non-sensitive config)
+# =============================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pipeline-config
+  namespace: pipeline
+data:
+  KAFKA_BROKER: "kafka:29092"
+  KAFKA_TOPIC: "sensor_readings"
+  MINIO_ENDPOINT: "http://minio:9000"
+  POSTGRES_DB: "processed_db"
+  AIRFLOW__CORE__EXECUTOR: "LocalExecutor"
+  MLFLOW_TRACKING_URI: "http://mlflow:5000"
+  SNOWFLAKE_WAREHOUSE: "PIPELINE_WH"
+  SNOWFLAKE_DATABASE: "PIPELINE_DB"
+  SNOWFLAKE_SCHEMA: "ANALYTICS"
+  ASPNETCORE_ENVIRONMENT: "Production"
+
+---
+# =============================================================
+# Secret (sensitive config - values are base64 encoded)
+# =============================================================
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pipeline-secrets
+  namespace: pipeline
+type: Opaque
+data:
+  # echo -n "value" | base64
+  POSTGRES_USER: cGlwZWxpbmVfdXNlcg==
+  POSTGRES_PASSWORD: Q0hBTkdFX01F
+  MYSQL_USER: cGlwZWxpbmVfdXNlcg==
+  MYSQL_PASSWORD: Q0hBTkdFX01F
+  MINIO_ROOT_USER: bWluaW8=
+  MINIO_ROOT_PASSWORD: Q0hBTkdFX01F
+  AIRFLOW_ADMIN_PASSWORD: Q0hBTkdFX01F
+  # SNOWFLAKE_ACCOUNT: ""
+  # SNOWFLAKE_USER: ""
+  # SNOWFLAKE_PASSWORD: ""

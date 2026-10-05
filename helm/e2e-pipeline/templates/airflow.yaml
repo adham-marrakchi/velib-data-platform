@@ -1,0 +1,107 @@
+{{- if .Values.airflow.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow-webserver
+  namespace: {{ include "e2e-pipeline.namespace" . }}
+  labels:
+    app: airflow-webserver
+    tier: orchestration
+    {{- include "e2e-pipeline.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.airflow.webserver.replicas }}
+  selector:
+    matchLabels:
+      app: airflow-webserver
+  template:
+    metadata:
+      labels:
+        app: airflow-webserver
+        tier: orchestration
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: airflow-webserver
+          image: {{ include "e2e-pipeline.image" (dict "global" .Values.global "repository" .Values.airflow.image.repository "tag" .Values.airflow.image.tag) }}
+          command: ["airflow", "webserver"]
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: pipeline-config
+            - secretRef:
+                name: pipeline-secrets
+          env:
+            - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+              value: "postgresql+psycopg2://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@{{ .Release.Name }}-postgresql:5432/{{ .Values.postgresql.auth.database }}"
+          resources: {{- toYaml .Values.airflow.webserver.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow-scheduler
+  namespace: {{ include "e2e-pipeline.namespace" . }}
+  labels:
+    app: airflow-scheduler
+    tier: orchestration
+    {{- include "e2e-pipeline.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.airflow.scheduler.replicas }}
+  selector:
+    matchLabels:
+      app: airflow-scheduler
+  template:
+    metadata:
+      labels:
+        app: airflow-scheduler
+        tier: orchestration
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: airflow-scheduler
+          image: {{ include "e2e-pipeline.image" (dict "global" .Values.global "repository" .Values.airflow.image.repository "tag" .Values.airflow.image.tag) }}
+          command: ["airflow", "scheduler"]
+          envFrom:
+            - configMapRef:
+                name: pipeline-config
+            - secretRef:
+                name: pipeline-secrets
+          env:
+            - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+              value: "postgresql+psycopg2://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@{{ .Release.Name }}-postgresql:5432/{{ .Values.postgresql.auth.database }}"
+          resources: {{- toYaml .Values.airflow.scheduler.resources | nindent 12 }}
+          livenessProbe:
+            exec:
+              command: ["airflow", "jobs", "check", "--job-type", "SchedulerJob"]
+            initialDelaySeconds: 60
+            periodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: airflow
+  namespace: {{ include "e2e-pipeline.namespace" . }}
+spec:
+  selector:
+    app: airflow-webserver
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: ClusterIP
+{{- end }}

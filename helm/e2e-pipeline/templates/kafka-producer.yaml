@@ -1,0 +1,38 @@
+{{- if .Values.kafkaProducer.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-producer
+  namespace: {{ include "e2e-pipeline.namespace" . }}
+  labels:
+    app: kafka-producer
+    tier: data
+    {{- include "e2e-pipeline.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-producer
+  template:
+    metadata:
+      labels:
+        app: kafka-producer
+        tier: data
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: kafka-producer
+          image: {{ include "e2e-pipeline.image" (dict "global" .Values.global "repository" .Values.kafkaProducer.image.repository "tag" .Values.kafkaProducer.image.tag) }}
+          env:
+            - name: KAFKA_BROKER
+              value: "{{ .Release.Name }}-kafka:9092"
+            - name: KAFKA_TOPIC
+              value: "{{ .Values.kafkaProducer.config.topic }}"
+            - name: MESSAGE_FREQUENCY
+              value: "{{ .Values.kafkaProducer.config.frequency }}"
+            - name: BATCH_SIZE
+              value: "{{ .Values.kafkaProducer.config.batchSize }}"
+          resources: {{- toYaml .Values.kafkaProducer.resources | nindent 12 }}
+{{- end }}

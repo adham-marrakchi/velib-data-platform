@@ -1,0 +1,61 @@
+# =============================================================
+# LITE PROFILE - Core services only (~8GB RAM)
+# =============================================================
+# Usage: docker compose -f docker-compose.yaml -f docker-compose.lite.yaml up -d
+#
+# Disables non-essential services for development on smaller machines.
+# Core pipeline (batch + streaming + warehouse) works fully.
+# Disabled: Elasticsearch, InfluxDB, MLflow, Kafka Producer (start manually if needed)
+
+services:
+  elasticsearch:
+    deploy:
+      replicas: 0
+
+  influxdb:
+    deploy:
+      replicas: 0
+
+  mlflow:
+    deploy:
+      replicas: 0
+
+  kafka-producer:
+    deploy:
+      replicas: 0
+
+  # Reduce resource limits for lighter footprint
+  kafka:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  spark-master:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+
+  spark-worker:
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+
+  airflow-webserver:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+
+  airflow-scheduler:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G

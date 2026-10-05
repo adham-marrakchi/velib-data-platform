@@ -1,0 +1,27 @@
+# =============================================================
+# GCP GKE Override Values
+# =============================================================
+# Usage: helm install e2e-pipeline ./helm/e2e-pipeline -f helm/e2e-pipeline/values-gcp.yaml
+
+global:
+  imageRegistry: "" # Set to your GCR: gcr.io/your-project-id
+  storageClass: pd-ssd
+
+dotnetApi:
+  ingress:
+    enabled: true
+    className: gce
+    host: api.your-domain.com
+
+postgresql:
+  primary:
+    persistence:
+      storageClass: pd-ssd
+
+kafka:
+  persistence:
+    storageClass: pd-ssd
+
+minio:
+  persistence:
+    storageClass: pd-ssd

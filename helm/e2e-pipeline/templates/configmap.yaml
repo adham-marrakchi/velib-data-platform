@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pipeline-config
+  namespace: {{ include "e2e-pipeline.namespace" . }}
+  labels:
+    {{- include "e2e-pipeline.labels" . | nindent 4 }}
+data:
+  KAFKA_BROKER: "{{ .Release.Name }}-kafka:9092"
+  KAFKA_TOPIC: "{{ .Values.kafkaProducer.config.topic }}"
+  MINIO_ENDPOINT: "http://{{ .Release.Name }}-minio:9000"
+  POSTGRES_DB: "{{ .Values.postgresql.auth.database }}"
+  POSTGRES_HOST: "{{ .Release.Name }}-postgresql"
+  MYSQL_HOST: "{{ .Release.Name }}-mysql"
+  REDIS_HOST: "{{ .Release.Name }}-redis-master"
+  MONGODB_URI: "mongodb://{{ .Release.Name }}-mongodb:27017/"
+  MLFLOW_TRACKING_URI: "http://mlflow:5000"
+  AIRFLOW__CORE__EXECUTOR: "{{ .Values.airflow.config.executor }}"
+  AIRFLOW__CORE__LOAD_EXAMPLES: "{{ .Values.airflow.config.loadExamples }}"
+  ASPNETCORE_ENVIRONMENT: "Production"
+  {{- if .Values.snowflake.enabled }}
+  SNOWFLAKE_WAREHOUSE: "{{ .Values.snowflake.warehouse }}"
+  SNOWFLAKE_DATABASE: "{{ .Values.snowflake.database }}"
+  SNOWFLAKE_SCHEMA: "{{ .Values.snowflake.schema }}"
+  SNOWFLAKE_ROLE: "{{ .Values.snowflake.role }}"
+  {{- end }}

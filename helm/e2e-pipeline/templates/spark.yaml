@@ -1,0 +1,105 @@
+{{- if .Values.spark.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-master
+  namespace: {{ include "e2e-pipeline.namespace" . }}
+  labels:
+    app: spark-master
+    tier: processing
+    {{- include "e2e-pipeline.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.spark.master.replicas }}
+  selector:
+    matchLabels:
+      app: spark-master
+  template:
+    metadata:
+      labels:
+        app: spark-master
+        tier: processing
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: spark-master
+          image: {{ include "e2e-pipeline.image" (dict "global" .Values.global "repository" .Values.spark.image.repository "tag" .Values.spark.image.tag) }}
+          command: ["/opt/spark/sbin/start-master.sh"]
+          env:
+            - name: SPARK_NO_DAEMONIZE
+              value: "true"
+          ports:
+            - containerPort: 7077
+              name: spark
+            - containerPort: 8080
+              name: web-ui
+          envFrom:
+            - configMapRef:
+                name: pipeline-config
+            - secretRef:
+                name: pipeline-secrets
+          resources: {{- toYaml .Values.spark.master.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 30
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-worker
+  namespace: {{ include "e2e-pipeline.namespace" . }}
+  labels:
+    app: spark-worker
+    tier: processing
+    {{- include "e2e-pipeline.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.spark.worker.replicas }}
+  selector:
+    matchLabels:
+      app: spark-worker
+  template:
+    metadata:
+      labels:
+        app: spark-worker
+        tier: processing
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: spark-worker
+          image: {{ include "e2e-pipeline.image" (dict "global" .Values.global "repository" .Values.spark.image.repository "tag" .Values.spark.image.tag) }}
+          command: ["/opt/spark/sbin/start-worker.sh", "spark://spark-master:7077"]
+          env:
+            - name: SPARK_NO_DAEMONIZE
+              value: "true"
+            - name: SPARK_WORKER_MEMORY
+              value: "2G"
+          envFrom:
+            - configMapRef:
+                name: pipeline-config
+            - secretRef:
+                name: pipeline-secrets
+          resources: {{- toYaml .Values.spark.worker.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-master
+  namespace: {{ include "e2e-pipeline.namespace" . }}
+spec:
+  selector:
+    app: spark-master
+  ports:
+    - name: spark
+      port: 7077
+      targetPort: 7077
+    - name: web-ui
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
+{{- end }}
