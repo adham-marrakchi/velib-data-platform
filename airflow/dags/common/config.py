@@ -26,7 +26,7 @@ PROJECT_ROOT = "/opt/airflow"
 # Assets : relient les DAGs producteurs et consommateurs (planification orientée données)
 STATIONS_ASSET = Asset("postgres://postgres:5432/velib_dw/staging/velib_stations")
 STAGING_STATUS_ASSET = Asset("postgres://postgres:5432/velib_dw/staging/velib_status")
-GOLD_ASSET = Asset("postgres://postgres:5432/velib_dw/gold")
+GOLD_ASSET = Asset("postgres://postgres:5432/velib_dw/gold/fct_station_horaire")
 MODEL_ASSET = Asset("mlflow://mlflow:5000/models/velib_bikes_1h")
 
 START_DATE = datetime(2026, 1, 1)

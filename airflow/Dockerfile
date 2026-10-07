@@ -11,7 +11,7 @@ FROM apache/airflow:3.3.2-python3.11
 USER root
 # Java pour PySpark (job silver exécuté en mode local dans la tâche Airflow)
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends default-jre-headless curl && \
+    apt-get install -y --no-install-recommends default-jre-headless curl libgomp1 && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     mkdir -p /opt/venvs /opt/airflow/dbt_target && chown -R airflow:0 /opt/venvs /opt/airflow/dbt_target
 ENV JAVA_HOME=/usr/lib/jvm/default-java
@@ -50,6 +50,8 @@ COPY --chown=airflow:0 dbt /opt/airflow/dbt
 COPY --chown=airflow:0 ml /opt/airflow/ml
 
 ENV PIPELINE_PYTHON=/opt/venvs/pipeline/bin/python \
+    SPARK_HOME=/opt/venvs/pipeline/lib/python3.11/site-packages/pyspark \
+    PYSPARK_PYTHON=/opt/venvs/pipeline/bin/python \
     SPARK_SUBMIT=/opt/venvs/pipeline/bin/spark-submit \
     DBT_BIN=/opt/venvs/dbt/bin/dbt \
     DBT_PROJECT_DIR=/opt/airflow/dbt/velib \

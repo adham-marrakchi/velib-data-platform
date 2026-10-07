@@ -2,7 +2,7 @@
 # --serve-artifacts : les clients passent par le serveur, ils n'ont pas besoin des clés S3.
 FROM python:3.11-slim
 
-RUN pip install --no-cache-dir mlflow==3.5.1 psycopg2-binary==2.9.10 boto3==1.40.45 && \
+RUN pip install --no-cache-dir mlflow==3.5.1 psycopg2-binary==2.9.10 boto3==1.40.45 "sqlalchemy<2.1" && \
     useradd --create-home --uid 1001 mlflow
 
 USER mlflow
