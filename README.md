@@ -1,6 +1,6 @@
 # Vélib' Data Platform : pipeline de données temps réel et MLOps
 
-[![CI](https://github.com/AdaMakchi/velib-data-platform/actions/workflows/cicd-pipeline.yml/badge.svg)](https://github.com/AdaMakchi/velib-data-platform/actions/workflows/cicd-pipeline.yml)
+[![CI](https://github.com/adham-marrakchi/velib-data-platform/actions/workflows/cicd-pipeline.yml/badge.svg)](https://github.com/adham-marrakchi/velib-data-platform/actions/workflows/cicd-pipeline.yml)
 ![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)
 ![Apache Kafka](https://img.shields.io/badge/Apache_Kafka-4.1_KRaft-231F20?logo=apachekafka&logoColor=white)
 ![Apache Spark](https://img.shields.io/badge/PySpark-3.5-E25A1C?logo=apachespark&logoColor=white)
@@ -177,7 +177,7 @@ Les dépendances entre DAGs passent par des **Assets Airflow 3** : le DAG de pr�
 **Prérequis** : Docker et Docker Compose, environ 8 Go de RAM alloués à Docker, `make` (facultatif).
 
 ```bash
-git clone https://github.com/AdaMakchi/velib-data-platform.git
+git clone https://github.com/adham-marrakchi/velib-data-platform.git
 cd velib-data-platform
 cp .env.example .env      # adapter les mots de passe si besoin
 make build                # ou : docker compose build
@@ -256,7 +256,7 @@ Le pipeline **GitHub Actions** exécute à chaque push :
 
 ## Auteur et crédits
 
-Projet réalisé par [@AdaMakchi](https://github.com/AdaMakchi).
+Projet réalisé par [@adham-marrakchi](https://github.com/adham-marrakchi).
 
 Le squelette initial (Docker Compose, Makefile, CI) vient du projet open source
 [hoangsonww/End-to-End-Data-Pipeline](https://github.com/hoangsonww/End-to-End-Data-Pipeline) (licence MIT).
