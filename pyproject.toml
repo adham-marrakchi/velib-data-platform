@@ -7,6 +7,7 @@ include = '\.pyi?$'
 profile = "black"
 line_length = 120
 known_first_party = ["ml", "quality", "common", "lake_config"]
+known_third_party = ["great_expectations"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
