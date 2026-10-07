@@ -15,7 +15,7 @@ from datetime import datetime, timedelta, timezone
 import pandas as pd
 
 from ml.common import EXIT_SKIP, MODEL_NAME, champion_version, mlflow_client, warehouse_engine
-from ml.features import DRIFT_FEATURES, bin_shares, build_features, load_hourly, psi
+from ml.features import bin_shares, build_features, load_hourly, psi
 
 logger = logging.getLogger("ml-drift")
 PSI_THRESHOLD = float(os.getenv("PSI_THRESHOLD", "0.2"))

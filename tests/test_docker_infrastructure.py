@@ -1,7 +1,6 @@
 """Tests for Docker infrastructure configuration."""
 
 import os
-import re
 
 import yaml
 
@@ -18,7 +17,7 @@ def test_compose_services_count():
     """Verify expected number of services are defined."""
     compose = load_compose()
     services = list(compose.get("services", {}).keys())
-    assert len(services) >= 20, f"Expected at least 20 services, got {len(services)}: {services}"
+    assert len(services) >= 10, f"Expected at least 10 services, got {len(services)}: {services}"
 
 
 def test_all_services_have_networks():
@@ -67,16 +66,12 @@ def test_volumes_defined():
     compose = load_compose()
     volumes = list(compose.get("volumes", {}).keys())
     expected = [
-        "mysql_data",
         "postgres_data",
-        "redis_data",
-        "mongodb_data",
         "minio_data",
-        "prometheus_data",
-        "grafana_data",
-        "airflow_logs",
-        "elasticsearch_data",
+        "kafka_data",
         "spark_checkpoints",
+        "airflow_logs",
+        "dbt_target",
     ]
     for vol in expected:
         assert vol in volumes, f"Volume '{vol}' not declared"
@@ -115,8 +110,11 @@ def test_dockerfiles_exist_for_build_services():
     for name, svc in compose["services"].items():
         build = svc.get("build")
         if build:
-            context = build if isinstance(build, str) else build.get("context", ".")
-            dockerfile = os.path.join(ROOT, context, "Dockerfile")
+            if isinstance(build, str):
+                context, dockerfile_name = build, "Dockerfile"
+            else:
+                context, dockerfile_name = build.get("context", "."), build.get("dockerfile", "Dockerfile")
+            dockerfile = os.path.join(ROOT, context, dockerfile_name)
             assert os.path.exists(
                 dockerfile
             ), f"Service '{name}' references build context '{context}' but Dockerfile not found"
@@ -142,9 +140,9 @@ def test_all_services_have_labels():
         assert "com.pipeline.tier" in labels, f"Service '{name}' missing com.pipeline.tier label"
 
 
-def test_mlflow_and_influxdb_services_exist():
-    """Verify MLflow and InfluxDB services are defined."""
+def test_core_services_exist():
+    """Verify the core services of the Vélib' platform are defined."""
     compose = load_compose()
-    services = list(compose["services"].keys())
-    assert "mlflow" in services, "MLflow service not defined"
-    assert "influxdb" in services, "InfluxDB service not defined"
+    services = set(compose["services"].keys())
+    expected = {"postgres", "minio", "kafka", "velib-producer", "spark-streaming", "airflow-scheduler", "mlflow"}
+    assert expected <= services, f"Missing services: {expected - services}"

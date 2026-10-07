@@ -8,6 +8,7 @@ from datetime import timedelta
 
 from airflow.providers.standard.operators.bash import BashOperator
 from airflow.sdk import DAG
+
 from common.config import DBT_BIN, GOLD_ASSET, START_DATE, default_args
 
 DBT = f"{DBT_BIN} --no-use-colors"

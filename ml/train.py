@@ -88,7 +88,9 @@ def tune(train, n_trials, timeout):
     study = optuna.create_study(direction="minimize", sampler=optuna.samplers.TPESampler(seed=42))
     study.optimize(objective, n_trials=n_trials, timeout=timeout)
     best = dict(study.best_params)
-    best.update(objective="l1", verbosity=-1, bagging_freq=1, n_estimators=study.best_trial.user_attrs["best_iteration"])
+    best.update(
+        objective="l1", verbosity=-1, bagging_freq=1, n_estimators=study.best_trial.user_attrs["best_iteration"]
+    )
     return best, study.best_value
 
 
@@ -110,9 +112,10 @@ def save_reference(engine, version, train):
 
 
 def main():
-    import mlflow
     import mlflow.lightgbm
     from mlflow.models import infer_signature
+
+    import mlflow
 
     engine = warehouse_engine()
     since = datetime.now(timezone.utc) - timedelta(days=TRAIN_DAYS)

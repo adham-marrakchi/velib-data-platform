@@ -85,7 +85,9 @@ def parse_bronze(df_bronze):
 
     parsed = df_bronze.withColumn("env", F.from_json("raw_json", envelope_schema()))
     s = "env.station"
-    count_type = "aggregate(coalesce({s}.num_bikes_available_types, array()), 0, (acc, m) -> acc + coalesce(m['{t}'], 0))"
+    count_type = (
+        "aggregate(coalesce({s}.num_bikes_available_types, array()), 0, (acc, m) -> acc + coalesce(m['{t}'], 0))"
+    )
     return parsed.select(
         F.col(f"{s}.station_id").alias("station_id"),
         F.col(f"{s}.stationCode").alias("station_code"),
@@ -121,9 +123,9 @@ def add_rejection_reason(df, known_station_ids=None, now_epoch=None):
     )
     if known_station_ids is not None:
         reason = reason.when(~F.col("is_known_station"), F.lit("station_inconnue"))
-        df = df.join(
-            known_station_ids.withColumn("is_known_station", F.lit(True)), on="station_id", how="left"
-        ).fillna({"is_known_station": False})
+        df = df.join(known_station_ids.withColumn("is_known_station", F.lit(True)), on="station_id", how="left").fillna(
+            {"is_known_station": False}
+        )
     df = df.withColumn("rejection_reason", reason)
     return df.drop("is_known_station") if "is_known_station" in df.columns else df
 

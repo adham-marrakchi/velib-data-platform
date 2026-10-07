@@ -12,6 +12,7 @@ from airflow.providers.standard.operators.bash import BashOperator
 from airflow.providers.standard.operators.python import PythonOperator, ShortCircuitOperator
 from airflow.providers.standard.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.sdk import DAG
+
 from common.config import GOLD_ASSET, MODEL_ASSET, PIPELINE_PYTHON, PROJECT_ROOT, START_DATE, default_args
 
 

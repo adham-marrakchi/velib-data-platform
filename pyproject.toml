@@ -6,7 +6,7 @@ include = '\.pyi?$'
 [tool.isort]
 profile = "black"
 line_length = 120
-known_first_party = ["snowflake"]
+known_first_party = ["ml", "quality", "common", "lake_config"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

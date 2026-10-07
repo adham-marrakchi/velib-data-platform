@@ -1,62 +1,58 @@
-"""Basic pipeline configuration and structure tests."""
+"""Tests de structure : les fichiers clés de la plateforme sont présents."""
 
 import os
+
+import pytest
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 
 
-def test_env_example_exists():
-    """Verify .env.example file exists."""
-    assert os.path.exists(os.path.join(ROOT, ".env.example"))
+@pytest.mark.parametrize(
+    "path",
+    [
+        ".env.example",
+        "docker-compose.yaml",
+        ".dockerignore",
+        "Makefile",
+        "kafka/producer.py",
+        "spark/bronze_stream_job.py",
+        "spark/silver_job.py",
+        "spark/lake_config.py",
+        "quality/validate_silver.py",
+        "ml/train.py",
+        "ml/predict.py",
+        "ml/drift_psi.py",
+        "dbt/velib/dbt_project.yml",
+        "monitoring/prometheus.yml",
+    ],
+)
+def test_fichier_present(path):
+    assert os.path.exists(os.path.join(ROOT, path)), f"{path} introuvable"
 
 
-def test_docker_compose_exists():
-    """Verify docker-compose.yaml exists."""
-    assert os.path.exists(os.path.join(ROOT, "docker-compose.yaml"))
+@pytest.mark.parametrize(
+    "dag",
+    [
+        "velib_stations_reference_dag.py",
+        "silver_quality_dag.py",
+        "dbt_gold_dag.py",
+        "data_freshness_dag.py",
+        "lake_maintenance_dag.py",
+        "ml_dags.py",
+    ],
+)
+def test_dag_present(dag):
+    assert os.path.exists(os.path.join(ROOT, "airflow", "dags", dag))
 
 
-def test_dockerignore_exists():
-    """Verify .dockerignore exists."""
-    assert os.path.exists(os.path.join(ROOT, ".dockerignore"))
+@pytest.mark.parametrize(
+    "dockerfile", ["airflow/Dockerfile", "spark/Dockerfile", "kafka/Dockerfile", "mlflow/Dockerfile"]
+)
+def test_dockerfile_present(dockerfile):
+    assert os.path.exists(os.path.join(ROOT, dockerfile))
 
 
-def test_makefile_exists():
-    """Verify Makefile exists."""
-    assert os.path.exists(os.path.join(ROOT, "Makefile"))
-
-
-def test_airflow_dags_exist():
-    """Verify Airflow DAG files exist."""
-    dag_dir = os.path.join(ROOT, "airflow", "dags")
-    assert os.path.exists(os.path.join(dag_dir, "batch_ingestion_dag.py"))
-    assert os.path.exists(os.path.join(dag_dir, "streaming_monitoring_dag.py"))
-
-
-def test_spark_jobs_exist():
-    """Verify Spark job files exist."""
-    spark_dir = os.path.join(ROOT, "spark")
-    assert os.path.exists(os.path.join(spark_dir, "spark_batch_job.py"))
-    assert os.path.exists(os.path.join(spark_dir, "spark_streaming_job.py"))
-
-
-def test_kafka_producer_exists():
-    """Verify Kafka producer file exists."""
-    assert os.path.exists(os.path.join(ROOT, "kafka", "producer.py"))
-
-
-def test_init_sql_exists():
-    """Verify database initialization script exists."""
-    assert os.path.exists(os.path.join(ROOT, "scripts", "init_db.sql"))
-
-
-def test_dockerfiles_exist():
-    """Verify all Dockerfiles exist."""
-    assert os.path.exists(os.path.join(ROOT, "airflow", "Dockerfile"))
-    assert os.path.exists(os.path.join(ROOT, "spark", "Dockerfile"))
-    assert os.path.exists(os.path.join(ROOT, "kafka", "Dockerfile"))
-    assert os.path.exists(os.path.join(ROOT, "sample_dotnet_backend", "Dockerfile"))
-
-
-def test_prometheus_config_exists():
-    """Verify Prometheus configuration exists."""
-    assert os.path.exists(os.path.join(ROOT, "monitoring", "prometheus.yml"))
+@pytest.mark.parametrize("layer", ["staging", "intermediate", "marts"])
+def test_couches_dbt(layer):
+    models = os.path.join(ROOT, "dbt", "velib", "models", layer)
+    assert any(f.endswith(".sql") for f in os.listdir(models)), f"aucun modèle dbt dans {layer}"

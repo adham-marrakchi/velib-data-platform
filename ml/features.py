@@ -69,14 +69,21 @@ def build_features(hourly, with_target=True):
     df = df.sort_values(["station_id", "heure_fin"]).reset_index(drop=True)
     df["velos_t0"] = df["velos_disponibles"].astype(float)
 
-    for hours, name in ((1, "velos_lag_1h"), (2, "velos_lag_2h"), (23, "velos_cible_moins_24h"), (167, "velos_cible_moins_7j")):
+    for hours, name in (
+        (1, "velos_lag_1h"),
+        (2, "velos_lag_2h"),
+        (23, "velos_cible_moins_24h"),
+        (167, "velos_cible_moins_7j"),
+    ):
         df = df.merge(_shifted(df, "velos_t0", hours, name), on=["station_id", "heure_fin"], how="left")
     if with_target:
         df = df.merge(_shifted(df, "velos_t0", -1, TARGET), on=["station_id", "heure_fin"], how="left")
 
     df["moyenne_3h"] = df[["velos_t0", "velos_lag_1h", "velos_lag_2h"]].mean(axis=1)
     df["tendance_1h"] = df["velos_t0"] - df["velos_lag_1h"]
-    df["part_electriques"] = np.where(df["velos_t0"] > 0, df["velos_electriques"] / df["velos_t0"].replace(0, np.nan), 0.0)
+    df["part_electriques"] = np.where(
+        df["velos_t0"] > 0, df["velos_electriques"] / df["velos_t0"].replace(0, np.nan), 0.0
+    )
     df["taux_remplissage_t0"] = df["taux_remplissage"].astype(float)
 
     target_local = (df["heure_fin"] + HORIZON).dt.tz_convert(TIMEZONE)

@@ -8,6 +8,7 @@ from datetime import datetime, timedelta, timezone
 
 from airflow.providers.standard.operators.python import PythonOperator
 from airflow.sdk import DAG
+
 from common.config import FRESHNESS_THRESHOLD_MINUTES, KAFKA_BROKER, KAFKA_TOPIC, START_DATE, default_args
 
 
@@ -15,9 +16,7 @@ def latest_message_time(broker=KAFKA_BROKER, topic=KAFKA_TOPIC):
     """Horodatage (UTC) du message le plus récent du topic, ou None si le topic est vide."""
     from confluent_kafka import Consumer, TopicPartition
 
-    consumer = Consumer(
-        {"bootstrap.servers": broker, "group.id": "freshness-probe", "enable.auto.commit": False}
-    )
+    consumer = Consumer({"bootstrap.servers": broker, "group.id": "freshness-probe", "enable.auto.commit": False})
     try:
         metadata = consumer.list_topics(topic, timeout=10)
         if topic not in metadata.topics or metadata.topics[topic].error:

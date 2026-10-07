@@ -13,6 +13,7 @@ from datetime import timedelta
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 from airflow.providers.standard.operators.bash import BashOperator
 from airflow.sdk import DAG
+
 from common.alerting import on_quality_failure
 from common.config import (
     PIPELINE_PYTHON,

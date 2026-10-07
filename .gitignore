@@ -33,3 +33,6 @@ airflow/logs/
 terraform/.terraform/
 terraform/*.tfstate
 terraform/*.tfstate.backup
+
+# Logs de build locaux
+.tools/

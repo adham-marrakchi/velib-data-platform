@@ -18,8 +18,9 @@ logger = logging.getLogger("ml-predict")
 
 
 def main():
-    import mlflow
     from psycopg2.extras import execute_values
+
+    import mlflow
 
     client = mlflow_client()
     champion = champion_version(client)
