@@ -29,7 +29,9 @@ SPARK_CMD = (
     f"{SPARK_SUBMIT} --master local[2] --driver-memory ${{SPARK_DRIVER_MEMORY:-1g}} "
     '--driver-java-options "-Duser.timezone=UTC" '
     f"--py-files {PROJECT_ROOT}/spark/lake_config.py {PROJECT_ROOT}/spark/silver_job.py "
-    "--start {{ data_interval_start.isoformat() }} --end {{ data_interval_end.isoformat() }} "
+    # Un run manuel (Airflow 3) n'a pas d'intervalle : on prend les 15 minutes précédant le déclenchement
+    "--start {{ (data_interval_start | default(dag_run.run_after - macros.timedelta(minutes=15), true)).isoformat() }} "
+    "--end {{ (data_interval_end | default(dag_run.run_after, true)).isoformat() }} "
     "--lookback-minutes 30 2>/tmp/silver_spark_stderr.log | tail -n 1"
 )
 
