@@ -1,7 +1,7 @@
-.PHONY: help env build up down restart logs clean status test lint format kafka-topics list-dags urls
+.PHONY: help env build up down restart logs clean status init-data test lint format kafka-topics list-dags urls
 
 COMPOSE = docker compose
-PY_DIRS = airflow kafka spark ml quality tests
+PY_DIRS = airflow kafka spark ml quality assistant tests
 
 help: ## Affiche cette aide
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -10,7 +10,7 @@ help: ## Affiche cette aide
 env: ## Crée .env à partir de .env.example (si absent)
 	@test -f .env || cp .env.example .env
 
-build: env ## Construit les images (Airflow, Spark, producteur, MLflow)
+build: env ## Construit les images (Airflow, Spark, producteur, MLflow, assistant)
 	$(COMPOSE) build
 
 up: env ## Démarre la plateforme
@@ -29,6 +29,12 @@ status: ## État et santé des services
 
 clean: ## Arrête tout et supprime les volumes (données perdues)
 	$(COMPOSE) down -v
+
+init-data: ## Remplit stations, Silver et Gold tout de suite (sinon les DAGs planifiés s'en chargent) ; ~10 min
+	$(COMPOSE) exec airflow-scheduler airflow dags test velib_stations_reference_dag
+	$(COMPOSE) exec airflow-scheduler airflow dags test velib_silver_quality_dag
+	$(COMPOSE) exec airflow-scheduler airflow dags test dbt_gold_dag
+	@echo "Données prêtes. Chatbot : http://localhost:8090"
 
 # --- Qualité du code -----------------------------------------------------------
 test: ## Tests unitaires
@@ -56,3 +62,4 @@ urls: ## URLs des interfaces
 	@echo "Spark streaming http://localhost:4040"
 	@echo "MinIO console  http://localhost:9001"
 	@echo "MLflow         http://localhost:5001"
+	@echo "Assistant IA   http://localhost:8090"

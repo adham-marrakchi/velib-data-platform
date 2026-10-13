@@ -39,6 +39,7 @@ Elle couvre la chaîne complète du **data engineering** et du **MLOps** :
 - [Modèle de données (Gold)](#modèle-de-données-gold)
 - [Orchestration Airflow](#orchestration-airflow)
 - [Machine Learning et MLOps](#machine-learning-et-mlops)
+- [Assistant IA](#assistant-ia)
 - [Démarrage rapide](#démarrage-rapide)
 - [Qualité du code et CI](#qualité-du-code-et-ci)
 - [Structure du dépôt](#structure-du-dépôt)
@@ -172,6 +173,24 @@ Les dépendances entre DAGs passent par des **Assets Airflow 3** : le DAG de pr�
 
 ---
 
+## Assistant IA
+
+Un **chatbot** répond en français aux questions des usagers (« Où trouver un vélo électrique près de la Bastille ? », « Quel arrondissement a le plus de vélos ? »). C'est un **agent à outils** : le LLM décide lui-même d'appeler
+
+- `stations_proches(lat, lon, besoin)` : stations les plus proches d'un point, avec vélos mécaniques, électriques et bornettes libres ;
+- `run_sql(sql)` : une requête `SELECT` qu'il écrit lui-même sur le schéma Gold (text-to-SQL).
+
+| Élément | Choix |
+|---|---|
+| LLM | [OpenRouter](https://openrouter.ai) (API compatible OpenAI), avec **liste de modèles de secours** si l'un est saturé |
+| Serveur | FastAPI, réponses diffusées en direct au navigateur (Server-Sent Events) |
+| Sécurité | clé API uniquement côté serveur ; rôle PostgreSQL `assistant_ro` en **lecture seule** (10 s max, schéma `gold` seul) ; seconde barrière SQL dans le code |
+| Interface | page de chat : cartes de suggestion, étapes de l'agent visibles (requêtes SQL dépliables), cartes stations avec jauge vélos / bornettes |
+
+Mise en route : renseigner `OPENROUTER_API_KEY` dans `.env` (clé sur https://openrouter.ai/settings/keys), lancer la plateforme (`make up`), remplir les données (`make init-data`) puis ouvrir http://localhost:8090. Les modèles `:free` sont gratuits mais limités à 50 requêtes par jour (une question en consomme 2 ou 3).
+
+---
+
 ## Démarrage rapide
 
 **Prérequis** : Docker et Docker Compose, environ 8 Go de RAM alloués à Docker, `make` (facultatif).
@@ -182,8 +201,17 @@ cd velib-data-platform
 cp .env.example .env      # adapter les mots de passe si besoin
 make build                # ou : docker compose build
 make up                   # ou : docker compose up -d
+make init-data            # facultatif : remplit stations, Silver et Gold tout de suite (~10 min)
 make urls                 # liste des interfaces
 ```
+
+**Sous Windows**, un script fait tout (mise à jour du code, `.env` et clé OpenRouter, build, attente des services, remplissage des données, ouverture du chatbot). Dans PowerShell, à la racine du dépôt, avec Docker Desktop démarré :
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\start-local.ps1
+```
+
+Options : `-SkipInit` (données déjà remplies), `-SkipPull` (ne pas mettre à jour le code), `-Rebuild` (reconstruire les images). Prévoir environ 25 Go libres pour le premier build et 8 Go de RAM pour Docker.
 
 | Interface | URL |
 |---|---|
@@ -192,6 +220,7 @@ make urls                 # liste des interfaces
 | Spark Streaming UI | http://localhost:4040 |
 | MinIO Console | http://localhost:9001 |
 | MLflow | http://localhost:5001 |
+| Assistant IA (chatbot) | http://localhost:8090 |
 
 Le producteur se met à publier dès le démarrage. Une fois les DAGs activés dans Airflow, les couches Silver puis Gold se remplissent.
 
@@ -223,6 +252,7 @@ Le pipeline **GitHub Actions** exécute à chaque push :
 ├── dbt/velib/           # Modèles staging / intermediate / marts, tests, exposures
 ├── airflow/             # Image Airflow 3 + DAGs (ingestion, qualité, dbt, ML, maintenance)
 ├── ml/                  # Features, entraînement, prédiction, drift PSI
+├── assistant/           # Chatbot : agent LLM (OpenRouter) + outils SQL en lecture seule, FastAPI
 ├── mlflow/              # Image du serveur MLflow
 ├── monitoring/          # Configuration Prometheus / StatsD
 ├── scripts/postgres/    # Initialisation de l'entrepôt (schémas, rôles)
@@ -242,7 +272,7 @@ Le pipeline **GitHub Actions** exécute à chaque push :
 - [x] Orchestration Airflow 3 par Assets
 - [x] ML : LightGBM, Optuna, MLflow Model Registry, drift PSI, réentraînement automatique
 - [ ] Dashboards BI (Grafana / Superset)
-- [ ] Assistant analytique en langage naturel (LLM local, text-to-SQL sur Gold)
+- [x] Assistant IA en langage naturel (agent à outils, text-to-SQL sur Gold, OpenRouter)
 - [ ] Déploiement cloud AWS : **Terraform** (S3, RDS, EKS) et **Kubernetes / Helm**
 - [ ] Data catalog et lineage
 

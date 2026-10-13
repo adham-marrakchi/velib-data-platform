@@ -1,6 +1,13 @@
--- Dimension calendrier (2025 -> aujourd'hui + 1 an) avec jours fériés français.
-with jours as (
-    select generate_series(date '2025-01-01', (current_date + interval '1 year')::date, interval '1 day')::date as date_jour
+-- Dimension calendrier (2025, ou le plus ancien relevé s'il est antérieur -> aujourd'hui + 1 an)
+-- avec jours fériés français. Certaines stations hors service publient un relevé vieux de plusieurs années.
+with debut as (
+    select least(date '2025-01-01', coalesce(min(releve_local)::date, date '2025-01-01')) as date_debut
+    from {{ ref('stg_velib_status') }}
+),
+
+jours as (
+    select generate_series(d.date_debut, (current_date + interval '1 year')::date, interval '1 day')::date as date_jour
+    from debut d
 )
 
 select

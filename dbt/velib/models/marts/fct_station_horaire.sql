@@ -13,12 +13,17 @@
 -- Photographie HORAIRE de chaque station : état connu à la fin de chaque heure (dernier relevé
 -- antérieur, "forward fill"). Grille complète station x heure = base des séries temporelles
 -- (agrégats horaires, features du modèle ML, courbes Superset).
+-- La grille part de la première ingestion (et non du plus ancien relevé : une station hors service
+-- peut publier un relevé vieux de plusieurs années). Une table encore vide repart de ce même point.
 with bornes as (
     select
         {% if is_incremental() %}
-        (select max(heure_debut) from {{ this }}) - interval '{{ var("incremental_lookback_hours") }} hours' as h0,
+        coalesce(
+            (select max(heure_debut) from {{ this }}) - interval '{{ var("incremental_lookback_hours") }} hours',
+            date_trunc('hour', min(ingested_at))
+        ) as h0,
         {% else %}
-        date_trunc('hour', min(releve_at)) as h0,
+        date_trunc('hour', min(ingested_at)) as h0,
         {% endif %}
         date_trunc('hour', max(releve_at)) as h1
     from {{ ref('fact_disponibilite') }}
