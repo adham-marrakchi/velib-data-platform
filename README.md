@@ -187,7 +187,7 @@ Un **chatbot** répond en français aux questions des usagers (« Où trouver un
 | Sécurité | clé API uniquement côté serveur ; rôle PostgreSQL `assistant_ro` en **lecture seule** (10 s max, schéma `gold` seul) ; seconde barrière SQL dans le code |
 | Interface | page de chat : cartes de suggestion, étapes de l'agent visibles (requêtes SQL dépliables), cartes stations avec jauge vélos / bornettes |
 
-Mise en route : renseigner `OPENROUTER_API_KEY` dans `.env` (clé sur https://openrouter.ai/settings/keys), puis `docker compose up -d assistant` et ouvrir http://localhost:8090. Les modèles `:free` sont gratuits mais limités à 50 requêtes par jour (une question en consomme 2 ou 3).
+Mise en route : renseigner `OPENROUTER_API_KEY` dans `.env` (clé sur https://openrouter.ai/settings/keys), lancer la plateforme (`make up`), remplir les données (`make init-data`) puis ouvrir http://localhost:8090. Les modèles `:free` sont gratuits mais limités à 50 requêtes par jour (une question en consomme 2 ou 3).
 
 ---
 
@@ -201,6 +201,7 @@ cd velib-data-platform
 cp .env.example .env      # adapter les mots de passe si besoin
 make build                # ou : docker compose build
 make up                   # ou : docker compose up -d
+make init-data            # facultatif : remplit stations, Silver et Gold tout de suite (~10 min)
 make urls                 # liste des interfaces
 ```
 

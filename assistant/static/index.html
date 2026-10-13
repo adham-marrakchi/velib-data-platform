@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Assistant Vélib' Data</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%2715%27 fill=%27%230f7a5a%27/%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%279%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272.2%27/%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%272.4%27 fill=%27white%27/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -45,6 +46,7 @@
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { height: 100%; }
 body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.6; display: flex; flex-direction: column; }
 button { font: inherit; color: inherit; }
@@ -59,6 +61,13 @@ button { font: inherit; color: inherit; }
 .live i { width: 7px; height: 7px; border-radius: 50%; background: var(--dock); }
 .live.ok i { background: var(--meca); box-shadow: 0 0 0 3px color-mix(in srgb, var(--meca) 25%, transparent); }
 .top .spacer { flex: 1; }
+@media (max-width: 520px) {
+  .top { gap: 10px; padding: 10px 12px; }
+  .mark { width: 28px; height: 28px; }
+  .brand h1 { font-size: 1rem; white-space: nowrap; }
+  .live span { white-space: nowrap; }
+  .ghost .long { display: none; }
+}
 .ghost { background: transparent; border: 1px solid var(--line); border-radius: 10px; padding: 7px 12px; cursor: pointer; font-size: 0.85rem; white-space: nowrap; }
 .ghost:hover { border-color: var(--accent); color: var(--accent); }
 
@@ -117,13 +126,15 @@ th { font-size: 0.75rem; color: var(--muted); font-weight: 600; text-transform: 
 
 /* Cartes stations */
 .stations { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr)); gap: 8px; }
-.st-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: grid; gap: 6px; box-shadow: var(--shadow); }
+.st-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; box-shadow: var(--shadow); }
+.st-card .meta { margin-bottom: auto; }
 .st-card h4 { margin: 0; font-size: 0.88rem; font-weight: 600; line-height: 1.3; }
 .st-card .meta { font-size: 0.75rem; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
 .dock { display: flex; gap: 2px; height: 8px; border-radius: 4px; overflow: hidden; background: var(--dock); }
 .dock b { display: block; height: 100%; }
 .dock .m { background: var(--meca); } .dock .e { background: var(--elec); }
-.counts { display: flex; gap: 12px; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+.counts { display: flex; flex-wrap: wrap; gap: 2px 10px; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+.counts span { white-space: nowrap; }
 .counts span { display: inline-flex; align-items: center; gap: 4px; }
 .counts i { width: 8px; height: 8px; border-radius: 2px; }
 
@@ -159,7 +170,7 @@ th { font-size: 0.75rem; color: var(--muted); font-weight: 600; text-transform: 
     <span class="live" id="live"><i></i><span id="liveText">Chargement des données…</span></span>
   </div>
   <div class="spacer"></div>
-  <button class="ghost" id="reset" type="button">Nouvelle conversation</button>
+  <button class="ghost" id="reset" type="button" aria-label="Nouvelle conversation">Nouvelle<span class="long"> conversation</span></button>
 </header>
 
 <main id="scroller">
@@ -220,7 +231,7 @@ const toBottom = () => scroller.scrollTo({ top: scroller.scrollHeight, behavior:
 
 // Rendu Markdown minimal : paragraphes, listes, **gras**, `code`, tableaux.
 function md(text) {
-  const inline = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/`([^`]+)`/g, "<code>$1</code>");
+  const inline = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/`([^`]+)`/g, "<code>$1</code>").replace(/(^|[^*])\*([^*\s][^*]*?)\*(?!\*)/g, "$1<em>$2</em>");
   const lines = text.split("\n");
   let html = "", i = 0;
   while (i < lines.length) {

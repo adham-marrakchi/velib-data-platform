@@ -1,4 +1,4 @@
-.PHONY: help env build up down restart logs clean status test lint format kafka-topics list-dags urls
+.PHONY: help env build up down restart logs clean status init-data test lint format kafka-topics list-dags urls
 
 COMPOSE = docker compose
 PY_DIRS = airflow kafka spark ml quality assistant tests
@@ -29,6 +29,12 @@ status: ## État et santé des services
 
 clean: ## Arrête tout et supprime les volumes (données perdues)
 	$(COMPOSE) down -v
+
+init-data: ## Remplit stations, Silver et Gold tout de suite (sinon les DAGs planifiés s'en chargent) ; ~10 min
+	$(COMPOSE) exec airflow-scheduler airflow dags test velib_stations_reference_dag
+	$(COMPOSE) exec airflow-scheduler airflow dags test velib_silver_quality_dag
+	$(COMPOSE) exec airflow-scheduler airflow dags test dbt_gold_dag
+	@echo "Données prêtes. Chatbot : http://localhost:8090"
 
 # --- Qualité du code -----------------------------------------------------------
 test: ## Tests unitaires
