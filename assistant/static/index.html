@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Assistant Vélib' Data</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout : application plein écran — en-tête fin, fil de conversation centré (720px), compositeur ancré en bas.
+   Couleurs sémantiques reprises du terrain : vert = vélo mécanique, bleu = vélo électrique, gris = bornette libre. */
+:root {
+  --bg: #f3f5f4;
+  --surface: #ffffff;
+  --ink: #13201b;
+  --muted: #5d6b65;
+  --line: #dbe3df;
+  --accent: #0f7a5a;
+  --accent-soft: #e0f0e9;
+  --meca: #2f9e44;
+  --elec: #1c7ed6;
+  --dock: #b7c2bd;
+  --danger: #b3261e;
+  --danger-soft: #fbe9e7;
+  --code: #eef3f1;
+  --shadow: 0 1px 2px rgba(19, 32, 27, .06), 0 8px 24px rgba(19, 32, 27, .06);
+  --f-display: "Bricolage Grotesque", "Public Sans", system-ui, sans-serif;
+  --f-body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1412; --surface: #161f1c; --ink: #e6eeea; --muted: #94a49d; --line: #283431;
+    --accent: #45c497; --accent-soft: #17302a; --meca: #51cf66; --elec: #4dabf7; --dock: #46524e;
+    --danger: #ff8a80; --danger-soft: #3a1d1b; --code: #121a17;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1412; --surface: #161f1c; --ink: #e6eeea; --muted: #94a49d; --line: #283431;
+  --accent: #45c497; --accent-soft: #17302a; --meca: #51cf66; --elec: #4dabf7; --dock: #46524e;
+  --danger: #ff8a80; --danger-soft: #3a1d1b; --code: #121a17;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.6; display: flex; flex-direction: column; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* En-tête */
+.top { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--surface); }
+.mark { width: 34px; height: 34px; flex: none; }
+.brand { min-width: 0; }
+.brand h1 { font-family: var(--f-display); font-weight: 700; font-size: 1.1rem; line-height: 1.2; margin: 0; letter-spacing: -0.01em; }
+.live { display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--muted); }
+.live i { width: 7px; height: 7px; border-radius: 50%; background: var(--dock); }
+.live.ok i { background: var(--meca); box-shadow: 0 0 0 3px color-mix(in srgb, var(--meca) 25%, transparent); }
+.top .spacer { flex: 1; }
+.ghost { background: transparent; border: 1px solid var(--line); border-radius: 10px; padding: 7px 12px; cursor: pointer; font-size: 0.85rem; white-space: nowrap; }
+.ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Fil */
+main { flex: 1; overflow-y: auto; padding: 24px 16px 8px; }
+.col { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+
+/* État vide */
+.hello { padding-top: 6vh; display: grid; gap: 22px; }
+.hello h2 { font-family: var(--f-display); font-weight: 700; font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.1; letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+.hello h2 em { font-style: normal; color: var(--accent); }
+.hello p { margin: 0; color: var(--muted); max-width: 56ch; }
+.caps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 10px; }
+.cap { text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; cursor: pointer; display: grid; grid-template-columns: 30px 1fr; gap: 4px 12px; align-items: start; transition: border-color .15s, transform .15s; }
+.cap:hover { border-color: var(--accent); transform: translateY(-1px); }
+.cap:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+.cap svg { grid-row: span 2; width: 30px; height: 30px; }
+.cap b { font-weight: 600; font-size: 0.92rem; }
+.cap span { color: var(--muted); font-size: 0.85rem; }
+
+/* Messages */
+.u { align-self: flex-end; max-width: 85%; background: var(--accent); color: var(--surface); padding: 10px 15px; border-radius: 18px 18px 6px 18px; white-space: pre-wrap; word-break: break-word; }
+.a { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; align-items: start; }
+.a .av { width: 28px; height: 28px; margin-top: 2px; }
+.a .content { min-width: 0; display: grid; gap: 10px; }
+.body p { margin: 0 0 8px; }
+.body p:last-child { margin-bottom: 0; }
+.body ul { margin: 2px 0 8px; padding-left: 20px; }
+.body code { font-family: var(--f-mono); font-size: 0.85em; background: var(--code); padding: 1px 5px; border-radius: 4px; }
+.body.streaming > :last-child::after { content: ""; display: inline-block; width: 7px; height: 1em; margin-left: 2px; vertical-align: -2px; background: var(--accent); animation: blink 1s steps(2) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.typing { display: inline-flex; gap: 4px; padding: 6px 0; }
+.typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: bob 1.2s infinite ease-in-out; }
+.typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes bob { 0%, 80%, 100% { opacity: .3; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; margin: 4px 0 8px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+th, td { padding: 7px 12px; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--line); }
+tr:last-child td { border-bottom: 0; }
+th { font-size: 0.75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+
+/* Cartes d'outils */
+.tools { display: grid; gap: 6px; }
+.tool { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font-size: 0.85rem; }
+.tool summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 7px 10px; }
+.tool summary::-webkit-details-marker { display: none; }
+.tool .st { width: 16px; height: 16px; flex: none; display: grid; place-items: center; }
+.tool .spin { width: 13px; height: 13px; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.tool .lbl { font-weight: 600; }
+.tool .arg { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1; }
+.tool .chev { color: var(--muted); transition: transform .15s; }
+.tool[open] .chev { transform: rotate(90deg); }
+.tool pre { margin: 0; padding: 8px 12px 10px; font-family: var(--f-mono); font-size: 0.76rem; white-space: pre-wrap; word-break: break-word; border-top: 1px solid var(--line); background: var(--code); border-radius: 0 0 10px 10px; }
+.tool.err { border-color: var(--danger); }
+
+/* Cartes stations */
+.stations { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr)); gap: 8px; }
+.st-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: grid; gap: 6px; box-shadow: var(--shadow); }
+.st-card h4 { margin: 0; font-size: 0.88rem; font-weight: 600; line-height: 1.3; }
+.st-card .meta { font-size: 0.75rem; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.dock { display: flex; gap: 2px; height: 8px; border-radius: 4px; overflow: hidden; background: var(--dock); }
+.dock b { display: block; height: 100%; }
+.dock .m { background: var(--meca); } .dock .e { background: var(--elec); }
+.counts { display: flex; gap: 12px; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+.counts span { display: inline-flex; align-items: center; gap: 4px; }
+.counts i { width: 8px; height: 8px; border-radius: 2px; }
+
+.errbox { border: 1px solid var(--danger); background: var(--danger-soft); color: var(--danger); border-radius: 12px; padding: 10px 12px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.errbox button { background: transparent; border: 1px solid currentColor; border-radius: 8px; padding: 4px 10px; cursor: pointer; }
+.stopped { color: var(--muted); font-size: 0.82rem; font-style: italic; }
+
+/* Compositeur */
+.dockbar { padding: 8px 16px calc(14px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to top, var(--bg) 70%, transparent); }
+.composer { max-width: 720px; margin: 0 auto; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); display: flex; align-items: end; gap: 8px; padding: 8px 8px 8px 16px; }
+.composer:focus-within { border-color: var(--accent); }
+.composer textarea { flex: 1; min-width: 0; border: 0; outline: none; resize: none; background: transparent; color: var(--ink); font: inherit; line-height: 1.5; max-height: 160px; padding: 7px 0; }
+.round { width: 38px; height: 38px; flex: none; border-radius: 12px; border: 0; cursor: pointer; display: grid; place-items: center; background: var(--accent); color: var(--surface); }
+.round:disabled { opacity: .4; cursor: not-allowed; }
+.round.stop { background: var(--ink); }
+.foot { max-width: 720px; margin: 6px auto 0; font-size: 0.75rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: space-between; }
+.foot a { color: inherit; }
+@media (prefers-reduced-motion: reduce) { *, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="wheel" viewBox="0 0 32 32"><circle cx="16" cy="16" r="15" fill="var(--accent)"/><circle cx="16" cy="16" r="9" fill="none" stroke="var(--surface)" stroke-width="2.2"/><path d="M16 7v18M7 16h18M9.6 9.6l12.8 12.8M22.4 9.6 9.6 22.4" stroke="var(--surface)" stroke-width="1.4"/><circle cx="16" cy="16" r="2.4" fill="var(--surface)"/></symbol>
+  </defs>
+</svg>
+
+<header class="top">
+  <svg class="mark" aria-hidden="true"><use href="#wheel"/></svg>
+  <div class="brand">
+    <h1>Assistant Vélib' Data</h1>
+    <span class="live" id="live"><i></i><span id="liveText">Chargement des données…</span></span>
+  </div>
+  <div class="spacer"></div>
+  <button class="ghost" id="reset" type="button">Nouvelle conversation</button>
+</header>
+
+<main id="scroller">
+  <div class="col" id="thread">
+    <section class="hello" id="hello">
+      <div>
+        <h2>Un vélo, une bornette, <em>tout de suite.</em></h2>
+        <p>Demande où trouver un vélo ou une place pour le rendre, ou interroge les tendances des 1 519 stations de Paris et de la métropole.</p>
+      </div>
+      <div class="caps" id="caps">
+        <button class="cap" type="button" disabled data-q="Où trouver un vélo électrique près de la Bastille ?">
+          <svg viewBox="0 0 30 30" aria-hidden="true"><rect width="30" height="30" rx="8" fill="var(--accent-soft)"/><path d="M15 7a5 5 0 0 0-5 5c0 4 5 10 5 10s5-6 5-10a5 5 0 0 0-5-5Z" fill="none" stroke="var(--elec)" stroke-width="1.8"/><circle cx="15" cy="12" r="1.8" fill="var(--elec)"/></svg>
+          <b>Trouver un vélo près de moi</b><span>« Un vélo électrique près de la Bastille ? »</span>
+        </button>
+        <button class="cap" type="button" disabled data-q="Je dois rendre mon vélo près de la gare Saint-Lazare, où y a-t-il des bornettes libres ?">
+          <svg viewBox="0 0 30 30" aria-hidden="true"><rect width="30" height="30" rx="8" fill="var(--accent-soft)"/><path d="M9 21V11m4 10V11m4 10V11m4 10V11" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"/><path d="M7 23h16" stroke="var(--meca)" stroke-width="2" stroke-linecap="round"/></svg>
+          <b>Rendre mon vélo</b><span>« Des bornettes libres vers Saint-Lazare ? »</span>
+        </button>
+        <button class="cap" type="button" disabled data-q="Quelles stations sont le plus souvent vides ?">
+          <svg viewBox="0 0 30 30" aria-hidden="true"><rect width="30" height="30" rx="8" fill="var(--accent-soft)"/><circle cx="15" cy="15" r="7" fill="none" stroke="var(--danger)" stroke-width="1.8"/><path d="M15 11v4.5M15 18.5v.2" stroke="var(--danger)" stroke-width="2" stroke-linecap="round"/></svg>
+          <b>Stations à éviter</b><span>« Quelles stations sont souvent vides ? »</span>
+        </button>
+        <button class="cap" type="button" disabled data-q="Quel arrondissement a le plus de vélos disponibles en ce moment ?">
+          <svg viewBox="0 0 30 30" aria-hidden="true"><rect width="30" height="30" rx="8" fill="var(--accent-soft)"/><path d="M8 21h14M10 21v-5m5 5V9m5 12v-8" stroke="var(--meca)" stroke-width="2.2" stroke-linecap="round"/></svg>
+          <b>Comparer les quartiers</b><span>« Quel arrondissement a le plus de vélos ? »</span>
+        </button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div class="dockbar">
+  <form class="composer" id="form">
+    <label for="q" hidden>Ta question</label>
+    <textarea id="q" rows="1" placeholder="Pose ta question sur les stations Vélib'…" disabled></textarea>
+    <button class="round" id="send" type="submit" disabled aria-label="Envoyer">
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 15V3m0 0L4 8m5-5 5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="round stop" id="stop" type="button" hidden aria-label="Arrêter la réponse">
+      <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="2" width="10" height="10" rx="2" fill="currentColor"/></svg>
+    </button>
+  </form>
+  <div class="foot">
+    <span id="footnote">Projet de démonstration, non affilié à Vélib' Métropole. Modèle : <span id="model">…</span> via OpenRouter.</span>
+    <span>Abonnement, panne, réclamation : <a href="https://www.velib-metropole.fr" target="_blank" rel="noopener">service client officiel</a></span>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const thread = $("thread"), scroller = $("scroller"), form = $("form"), q = $("q");
+const sendBtn = $("send"), stopBtn = $("stop"), hello = $("hello");
+let ctl = null, ready = false;
+let turns = [];
+
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const toBottom = () => scroller.scrollTo({ top: scroller.scrollHeight, behavior: "smooth" });
+
+// Rendu Markdown minimal : paragraphes, listes, **gras**, `code`, tableaux.
+function md(text) {
+  const inline = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/`([^`]+)`/g, "<code>$1</code>");
+  const lines = text.split("\n");
+  let html = "", i = 0;
+  while (i < lines.length) {
+    const l = lines[i];
+    if (/^\s*\|.*\|\s*$/.test(l)) {
+      const rows = [];
+      while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])) rows.push(lines[i++]);
+      const cells = (r) => r.trim().replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
+      const [head, ...rest] = rows.filter((r) => !/^\s*\|[\s:|-]+\|\s*$/.test(r));
+      html += '<div class="tbl"><table><thead><tr>' + cells(head).map((c) => `<th>${inline(c)}</th>`).join("")
+        + "</tr></thead><tbody>" + rest.map((r) => "<tr>" + cells(r).map((c) => `<td>${inline(c)}</td>`).join("") + "</tr>").join("") + "</tbody></table></div>";
+      continue;
+    }
+    if (/^\s*[-*•]\s+/.test(l)) {
+      html += "<ul>";
+      while (i < lines.length && /^\s*[-*•]\s+/.test(lines[i])) html += "<li>" + inline(lines[i++].replace(/^\s*[-*•]\s+/, "")) + "</li>";
+      html += "</ul>";
+      continue;
+    }
+    if (l.trim()) html += "<p>" + inline(l.replace(/^#+\s*/, "")) + "</p>";
+    i++;
+  }
+  return html;
+}
+
+function chevron() { return '<svg class="chev" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>'; }
+const ICON_OK = '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="var(--accent-soft)"/><path d="M5 8.2l2 2 4-4.2" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ICON_ERR = '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="var(--danger-soft)"/><path d="M8 4.5v4.5M8 11.2v.1" stroke="var(--danger)" stroke-width="1.8" stroke-linecap="round"/></svg>';
+
+function toolCard(container, ev) {
+  const a = ev.args || {};
+  const label = ev.name === "run_sql" ? "Requête SQL" : (a.lieu ? `Autour de ${a.lieu}` : "Stations proches");
+  const arg = ev.name === "run_sql" ? String(a.sql || "").replace(/\s+/g, " ").slice(0, 80) : `${a.besoin || "tout"} · ${a.lat}, ${a.lon}`;
+  const detail = ev.name === "run_sql" ? String(a.sql || "") : JSON.stringify(a, null, 2);
+  const d = document.createElement("details");
+  d.className = "tool";
+  d.innerHTML = `<summary><span class="st"><span class="spin"></span></span><span class="lbl">${esc(label)}</span><span class="arg">${esc(arg)}</span>${chevron()}</summary><pre>${esc(detail)}</pre>`;
+  container.appendChild(d);
+  return d;
+}
+function finishCard(d, ev) {
+  if (!d) return;
+  d.querySelector(".st").innerHTML = ev.ok ? ICON_OK : ICON_ERR;
+  d.querySelector(".arg").textContent = ev.summary || "";
+  if (!ev.ok) { d.classList.add("err"); d.querySelector("pre").textContent += "\n\nErreur : " + ev.summary; }
+}
+
+function stationCards(list) {
+  const wrap = document.createElement("div");
+  wrap.className = "stations";
+  wrap.innerHTML = list.slice(0, 6).map((s) => {
+    const total = Math.max(s.velos + s.bornes_libres, 1);
+    const dist = s.distance_m < 1000 ? `${s.distance_m} m` : `${(s.distance_m / 1000).toFixed(1).replace(".", ",")} km`;
+    return `<article class="st-card">
+      <h4>${esc(s.station)}</h4>
+      <div class="meta"><span>${esc(s.zone)}</span><span>${dist}</span></div>
+      <div class="dock" role="img" aria-label="${s.mecaniques} mécaniques, ${s.electriques} électriques, ${s.bornes_libres} bornettes libres">
+        <b class="m" style="width:${(s.mecaniques / total) * 100}%"></b><b class="e" style="width:${(s.electriques / total) * 100}%"></b>
+      </div>
+      <div class="counts">
+        <span><i style="background:var(--meca)"></i>${s.mecaniques} méca</span>
+        <span><i style="background:var(--elec)"></i>${s.electriques} élec</span>
+        <span><i style="background:var(--dock)"></i>${s.bornes_libres} places</span>
+      </div>
+    </article>`;
+  }).join("");
+  return wrap;
+}
+
+function userBubble(text) {
+  const d = document.createElement("div");
+  d.className = "u";
+  d.textContent = text;
+  thread.appendChild(d);
+}
+function assistantShell() {
+  const a = document.createElement("div");
+  a.className = "a";
+  a.innerHTML = '<svg class="av" aria-hidden="true"><use href="#wheel"/></svg><div class="content"><div class="tools"></div><div class="body"><span class="typing" aria-label="L\'assistant réfléchit"><i></i><i></i><i></i></span></div><div class="cards"></div></div>';
+  thread.appendChild(a);
+  return { el: a, tools: a.querySelector(".tools"), body: a.querySelector(".body"), cards: a.querySelector(".cards") };
+}
+function showError(ui, message, text) {
+  ui.body.innerHTML = "";
+  const box = document.createElement("div");
+  box.className = "errbox";
+  box.innerHTML = `<span>${esc(message)}</span>`;
+  const retry = document.createElement("button");
+  retry.type = "button"; retry.textContent = "Réessayer";
+  retry.addEventListener("click", () => { ui.el.previousElementSibling?.remove(); ui.el.remove(); ask(text); });
+  box.appendChild(retry);
+  ui.body.appendChild(box);
+}
+
+// Lit le flux SSE renvoyé par /api/chat et met l'interface à jour à chaque événement.
+async function ask(text) {
+  text = text.trim();
+  if (!text || !ready || ctl) return;
+  hello.hidden = true;
+  userBubble(text);
+  turns.push({ role: "user", content: text });
+  while (turns.length > 12) turns.shift();
+  while (turns.length && turns[0].role !== "user") turns.shift();
+  const ui = assistantShell();
+  toBottom();
+  setBusy(true);
+  ctl = new AbortController();
+  const cards = {};
+  let answered = false;
+  try {
+    const resp = await fetch("api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: turns }),
+      signal: ctl.signal,
+    });
+    if (!resp.ok) {
+      const detail = await resp.json().then((j) => j.detail).catch(() => null);
+      throw new Error(typeof detail === "string" ? detail : `Le serveur a répondu ${resp.status}.`);
+    }
+    const reader = resp.body.pipeThrough(new TextDecoderStream()).getReader();
+    let buf = "";
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buf += value;
+      const parts = buf.split("\n\n");
+      buf = parts.pop();
+      for (const part of parts) {
+        const data = part.replace(/^data: /, "").trim();
+        if (!data || data === "[DONE]") continue;
+        const ev = JSON.parse(data);
+        if (ev.type === "tool_start") cards[ev.id] = toolCard(ui.tools, ev);
+        else if (ev.type === "tool_end") finishCard(cards[ev.id], ev);
+        else if (ev.type === "stations" && ev.stations.length) ui.cards.replaceChildren(stationCards(ev.stations));
+        else if (ev.type === "answer") { ui.body.innerHTML = md(ev.text); turns.push({ role: "assistant", content: ev.text }); answered = true; }
+        else if (ev.type === "error") { turns.pop(); showError(ui, ev.message, text); answered = true; }
+        toBottom();
+      }
+    }
+    if (!answered) { turns.pop(); showError(ui, "La réponse a été interrompue.", text); }
+  } catch (e) {
+    turns.pop();
+    if (e.name === "AbortError") ui.body.innerHTML = '<p class="stopped">Réponse arrêtée.</p>';
+    else showError(ui, e.message || "Le serveur est injoignable.", text);
+  } finally {
+    ctl = null;
+    setBusy(false);
+    toBottom();
+  }
+}
+
+function setBusy(b) {
+  sendBtn.hidden = b; stopBtn.hidden = !b;
+  q.disabled = b || !ready;
+  sendBtn.disabled = !q.value.trim();
+  document.querySelectorAll(".cap").forEach((x) => (x.disabled = b || !ready));
+  if (!b && ready) q.focus();
+}
+function lock(msg) {
+  ready = false;
+  q.disabled = true; sendBtn.disabled = true;
+  document.querySelectorAll(".cap").forEach((x) => (x.disabled = true));
+  $("footnote").textContent = msg;
+}
+
+form.addEventListener("submit", (e) => { e.preventDefault(); const t = q.value; q.value = ""; q.style.height = "auto"; ask(t); });
+q.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); } });
+q.addEventListener("input", () => { q.style.height = "auto"; q.style.height = Math.min(q.scrollHeight, 160) + "px"; sendBtn.disabled = !q.value.trim() || !ready; });
+stopBtn.addEventListener("click", () => ctl && ctl.abort());
+document.querySelectorAll(".cap").forEach((b) => b.addEventListener("click", () => ask(b.dataset.q)));
+$("reset").addEventListener("click", () => {
+  if (ctl) ctl.abort();
+  turns = [];
+  thread.querySelectorAll(".u, .a").forEach((n) => n.remove());
+  hello.hidden = false;
+  if (ready) q.focus();
+});
+
+(async () => {
+  try {
+    const h = await fetch("api/health").then((r) => r.json());
+    if (!h.database) throw new Error("Les données Vélib' sont indisponibles : la base PostgreSQL ne répond pas.");
+    if (!h.api_key_configured) throw new Error("Clé OpenRouter absente : renseigne OPENROUTER_API_KEY dans le fichier .env.");
+    const fmt = new Date(h.last_snapshot).toLocaleString("fr-FR", { timeZone: "Europe/Paris", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
+    $("liveText").textContent = `Relevé du ${fmt}`;
+    $("live").classList.add("ok");
+    $("model").textContent = h.model;
+    ready = true;
+    q.disabled = false;
+    document.querySelectorAll(".cap").forEach((x) => (x.disabled = false));
+  } catch (e) {
+    $("liveText").textContent = "Service indisponible";
+    lock(e.message || "Le serveur de l'assistant ne répond pas.");
+  }
+})();
+</script>
+</body>
+</html>

@@ -425,6 +425,39 @@ services:
     networks: [pipeline-network]
 
   # ============================================================
+  # ASSISTANT IA : chatbot (FastAPI + OpenRouter), lecture seule sur gold
+  # ============================================================
+  assistant:
+    build:
+      context: .
+      dockerfile: assistant/Dockerfile
+    image: velib/assistant:${IMAGE_TAG:-dev}
+    container_name: assistant
+    restart: unless-stopped
+    logging: *default-logging
+    env_file: .env
+    environment:
+      POSTGRES_HOST: postgres
+    ports:
+      - "8090:8090"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits: { cpus: "0.5", memory: 256M }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8090/api/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    labels:
+      com.pipeline.component: "assistant"
+      com.pipeline.tier: "serving"
+    networks: [pipeline-network]
+
+  # ============================================================
   # MONITORING
   # ============================================================
   statsd-exporter:
