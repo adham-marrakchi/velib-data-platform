@@ -205,6 +205,14 @@ make init-data            # facultatif : remplit stations, Silver et Gold tout d
 make urls                 # liste des interfaces
 ```
 
+**Sous Windows**, un script fait tout (mise à jour du code, `.env` et clé OpenRouter, build, attente des services, remplissage des données, ouverture du chatbot). Dans PowerShell, à la racine du dépôt, avec Docker Desktop démarré :
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\start-local.ps1
+```
+
+Options : `-SkipInit` (données déjà remplies), `-SkipPull` (ne pas mettre à jour le code), `-Rebuild` (reconstruire les images). Prévoir environ 25 Go libres pour le premier build et 8 Go de RAM pour Docker.
+
 | Interface | URL |
 |---|---|
 | Airflow | http://localhost:8080 |
